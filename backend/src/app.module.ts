@@ -3,6 +3,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
+import { Product } from './products/product.model';
+import { ProductsModule } from './products/product.module';
 
 @Module({
   imports: [
@@ -17,9 +19,11 @@ import { ConfigModule } from '@nestjs/config';
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'mydatabase',
       autoLoadModels: true,
+      models: [Product],
       synchronize: true,
       logging: false,
     }),
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
