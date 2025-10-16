@@ -22,7 +22,14 @@ export class Transaction extends Model {
   declare id: string;
 
   @Column({
-    type: DataType.ENUM('PENDING', 'COMPLETED', 'CANCELLED'),
+    type: DataType.ENUM(
+      'PENDING',
+      'APPROVED',
+      'DECLINED',
+      'VOIDED',
+      'ERROR',
+      'FINISHED',
+    ),
     allowNull: false,
     defaultValue: 'PENDING',
   })
