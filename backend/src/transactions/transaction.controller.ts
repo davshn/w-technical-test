@@ -10,12 +10,19 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { TransactionsService } from './transaction.service';
+import { PaymentService } from './payment.service';
 import { Transaction } from './transaction.model';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { CardTokenizationDto } from './dto/card-tokenization.dto';
+import { AxiosResponse } from 'axios';
+import { Observable } from 'rxjs';
 
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(
+    private readonly transactionsService: TransactionsService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   @Get()
   findAll(): Promise<Transaction[]> {
@@ -41,5 +48,13 @@ export class TransactionsController {
     @Body() transactionData: Partial<Transaction>,
   ) {
     return this.transactionsService.update(id, transactionData);
+  }
+
+  @Post('tokenize')
+  @HttpCode(HttpStatus.CREATED)
+  tokenizeCard(
+    @Body() cardTokenizationDto: CardTokenizationDto,
+  ): Observable<AxiosResponse> {
+    return this.paymentService.cardTokenization(cardTokenizationDto);
   }
 }
