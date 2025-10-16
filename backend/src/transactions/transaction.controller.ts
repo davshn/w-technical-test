@@ -29,11 +29,6 @@ export class TransactionsController {
     return this.transactionsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Transaction> {
-    return this.transactionsService.findOne(id);
-  }
-
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(
@@ -52,9 +47,23 @@ export class TransactionsController {
 
   @Post('tokenize')
   @HttpCode(HttpStatus.CREATED)
-  tokenizeCard(
+  cardTokenice(
     @Body() cardTokenizationDto: CardTokenizationDto,
   ): Observable<AxiosResponse> {
-    return this.paymentService.cardTokenization(cardTokenizationDto);
+    return this.paymentService.cardTokenice(cardTokenizationDto);
+  }
+
+  @Get('aceptance')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async generateAceptanceTokens(): Promise<{
+    presigned_acceptance: string;
+    presigned_personal_data_auth: string;
+  }> {
+    return await this.paymentService.generateAceptanceTokens();
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Transaction> {
+    return this.transactionsService.findOne(id);
   }
 }
