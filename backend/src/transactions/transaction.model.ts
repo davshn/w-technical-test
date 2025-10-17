@@ -23,6 +23,7 @@ export class Transaction extends Model {
 
   @Column({
     type: DataType.ENUM(
+      'INITIALIZED',
       'PENDING',
       'APPROVED',
       'DECLINED',
@@ -31,7 +32,7 @@ export class Transaction extends Model {
       'FINISHED',
     ),
     allowNull: false,
-    defaultValue: 'PENDING',
+    defaultValue: 'INITIALIZED',
   })
   status: string;
 

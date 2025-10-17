@@ -5,6 +5,7 @@ import { TransactionProduct } from './transaction-product.model';
 import { Product } from '../products/product.model';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { HttpStatus, HttpException } from '@nestjs/common';
+import { PaymentService } from './payment.service';
 
 @Injectable()
 export class TransactionsService {
@@ -15,6 +16,7 @@ export class TransactionsService {
     private transactionProductModel: typeof TransactionProduct,
     @InjectModel(Product)
     private productModel: typeof Product,
+    private readonly paymentService: PaymentService,
   ) {}
 
   async findAll(): Promise<Transaction[]> {
@@ -59,7 +61,13 @@ export class TransactionsService {
       const product = await this.productModel.findByPk(item.productId);
       if (!product) {
         throw new HttpException(
-          `Product with id ${item.productId} not found`,
+          `El producto con id ${item.productId} no fue encontrado`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      if (product.get({ plain: true }).quantity < item.quantity) {
+        throw new HttpException(
+          `El producto con id ${item.productId} no tiene suficientes existencias`,
           HttpStatus.NOT_FOUND,
         );
       }
@@ -83,7 +91,22 @@ export class TransactionsService {
         ...detail,
       });
     }
-    return this.findOne(transaction.id);
+    const newTransactionData = { total, id: transaction.id };
+
+    const createdTransaction = await this.paymentService.createTransaction({
+      ...newTransactionData,
+      ...createTransactionDto,
+    });
+
+    await this.transactionModel.update(
+      { status: 'PENDING' },
+      {
+        where: { id: transaction.id },
+        returning: true,
+      },
+    );
+
+    return createdTransaction;
   }
 
   async update(

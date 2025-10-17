@@ -57,7 +57,6 @@ export class TransactionsController {
   @HttpCode(HttpStatus.ACCEPTED)
   async generateAceptanceTokens(): Promise<{
     presigned_acceptance: string;
-    presigned_personal_data_auth: string;
   }> {
     return await this.paymentService.generateAceptanceTokens();
   }

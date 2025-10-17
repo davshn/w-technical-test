@@ -7,6 +7,7 @@ import {
   IsInt,
   Min,
   MaxLength,
+  IsEmail,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
@@ -22,9 +23,10 @@ export class TransactionProductDto {
 
 export class CreateTransactionDto {
   @IsString()
-  @IsNotEmpty({ message: 'El cliente es requerido' })
+  @IsNotEmpty({ message: 'El correo del cliente es requerido' })
+  @IsEmail()
   @MaxLength(255, {
-    message: 'El cliente no puede exceder 255 caracteres',
+    message: 'El correo del cliente no puede exceder 255 caracteres',
   })
   @Transform(({ value }) => value?.trim())
   customer: string;
@@ -34,4 +36,23 @@ export class CreateTransactionDto {
   @ValidateNested({ each: true })
   @Type(() => TransactionProductDto)
   products: TransactionProductDto[];
+
+  @IsString()
+  @IsNotEmpty({ message: 'Se requiere el token de la tarjeta a usar' })
+  @Transform(({ value }) => value?.trim())
+  cardToken: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Se requiere el acceptance_token' })
+  @Transform(({ value }) => value?.trim())
+  acceptance_token: string;
+
+  @IsInt({ message: 'La cantidad debe ser un número entero' })
+  @Min(1, { message: 'La cantidad debe ser al menos 1' })
+  installments: number;
 }
+
+export type NewTransactionDto = CreateTransactionDto & {
+  total: number;
+  id: string;
+};
