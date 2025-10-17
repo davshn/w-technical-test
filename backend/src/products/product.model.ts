@@ -1,4 +1,12 @@
-import { Column, Model, Table, DataType } from 'sequelize-typescript';
+import {
+  Column,
+  Model,
+  Table,
+  DataType,
+  BelongsToMany,
+} from 'sequelize-typescript';
+import { TransactionProduct } from '../transactions/transaction-product.model';
+import { Transaction } from '../transactions/transaction.model';
 
 @Table({
   tableName: 'products',
@@ -43,4 +51,7 @@ export class Product extends Model {
     allowNull: false,
   })
   value: number;
+
+  @BelongsToMany(() => Transaction, () => TransactionProduct)
+  transactions: Transaction[];
 }

@@ -4,7 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { Product } from './products/product.model';
+import { Transaction } from './transactions/transaction.model';
+import { TransactionProduct } from './transactions/transaction-product.model';
 import { ProductsModule } from './products/product.module';
+import { TransactionsModule } from './transactions/transaction.module';
 
 @Module({
   imports: [
@@ -19,11 +22,12 @@ import { ProductsModule } from './products/product.module';
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'mydatabase',
       autoLoadModels: true,
-      models: [Product],
+      models: [Product, Transaction, TransactionProduct],
       synchronize: true,
       logging: false,
     }),
     ProductsModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
