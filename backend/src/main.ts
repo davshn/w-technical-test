@@ -41,8 +41,8 @@ async function bootstrap() {
     .addTag('products', 'Gestión de productos del inventario')
     .addTag('transactions', 'Gestión de transacciones de compra')
     .addTag('payments', 'Procesamiento y tokenización de pagos')
-    .addServer('http://localhost:3000', 'Desarrollo')
-    .addServer('https://api.tuempresa.com', 'Producción')
+    .addServer('http://18.116.39.97:3000', 'Desarrollo')
+    .addServer('http://18.116.39.97:3000', 'Producción')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -59,7 +59,9 @@ async function bootstrap() {
     customSiteTitle: 'API E-commerce - Documentación',
   });
   await app.listen(process.env.PORT ?? 3000);
-  console.log('🚀 Application is running on: http://localhost:3000');
-  console.log('📚 Swagger docs available at: http://localhost:3000/api/docs');
+  console.log('🚀 Application is running on: http://18.116.39.97:3000');
+  console.log(
+    '📚 Swagger docs available at: http://18.116.39.97:3000/api/docs',
+  );
 }
 bootstrap();
