@@ -38,11 +38,8 @@ export class TransactionsController {
   }
 
   @Put(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() transactionData: Partial<Transaction>,
-  ) {
-    return this.transactionsService.update(id, transactionData);
+  update(@Param('id', ParseUUIDPipe) id: string) {
+    return this.transactionsService.update(id);
   }
 
   @Post('tokenize')

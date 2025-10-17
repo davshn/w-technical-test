@@ -29,6 +29,7 @@ export class Transaction extends Model {
       'DECLINED',
       'VOIDED',
       'ERROR',
+      'ASSIGNED',
       'FINISHED',
     ),
     allowNull: false,
@@ -54,6 +55,12 @@ export class Transaction extends Model {
     allowNull: true,
   })
   total: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  paymentId: string;
 
   @BelongsToMany(() => Product, () => TransactionProduct)
   products: Product[];

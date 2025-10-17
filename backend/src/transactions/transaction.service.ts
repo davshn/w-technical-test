@@ -93,29 +93,58 @@ export class TransactionsService {
     }
     const newTransactionData = { total, id: transaction.id };
 
-    const createdTransaction = await this.paymentService.createTransaction({
+    const { data } = await this.paymentService.createTransaction({
       ...newTransactionData,
       ...createTransactionDto,
     });
 
     await this.transactionModel.update(
-      { status: 'PENDING' },
+      { status: 'PENDING', paymentId: data.id },
       {
         where: { id: transaction.id },
         returning: true,
       },
     );
 
-    return createdTransaction;
+    return data;
   }
 
-  async update(
-    id: string,
-    transactionData: Partial<Transaction>,
-  ): Promise<[number, Transaction[]]> {
-    return this.transactionModel.update(transactionData, {
-      where: { id },
-      returning: true,
+  async update(id: string): Promise<any> {
+    const transaction = await this.transactionModel.findByPk(id, {
+      include: [
+        {
+          model: Product,
+          through: { attributes: ['quantity'] },
+        },
+      ],
     });
+
+    const { data } = await this.paymentService.validateTransaction(
+      transaction!.get({ plain: true }).paymentId,
+    );
+    if (data.status !== 'APPROVED') {
+      throw new HttpException(`${data.status}`, HttpStatus.OK);
+    }
+
+    for (const item of transaction!.get({ plain: true }).products) {
+      const newQuantity = item.quantity - item.TransactionProduct.quantity;
+      if (newQuantity < 0) {
+        throw new HttpException(
+          `No hay suficientes existencias de ${item.id}`,
+          HttpStatus.OK,
+        );
+      }
+      await this.productModel.update(
+        { quantity: newQuantity },
+        { where: { id: item.id } },
+      );
+    }
+
+    await this.transactionModel.update(
+      { status: 'ASSIGNED' },
+      { where: { id } },
+    );
+
+    return await this.transactionModel.findByPk(id);
   }
 }

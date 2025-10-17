@@ -5,7 +5,6 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CardTokenizationDto } from './dto/card-tokenization.dto';
 import { NewTransactionDto } from './dto/create-transaction.dto';
-import { Transaction } from './transaction.model';
 import crypto from 'crypto';
 
 @Injectable()
@@ -47,9 +46,7 @@ export class PaymentService {
     return tokensData;
   }
 
-  async createTransaction(
-    newTransactionDto: NewTransactionDto,
-  ): Promise<Transaction> {
+  async createTransaction(newTransactionDto: NewTransactionDto): Promise<any> {
     const INTEGRITY_SECRET = process.env.INTEGRITY_SECRET;
     const PUBLIC_KEY = process.env.PUBLIC_KEY;
     const ENVIRONMENT_URL = process.env.ENVIRONMENT_URL;
@@ -79,6 +76,22 @@ export class PaymentService {
     return await firstValueFrom(
       this.httpService
         .post(`${ENVIRONMENT_URL}/transactions`, payload, { headers })
+        .pipe(map((response) => response.data)),
+    );
+  }
+
+  async validateTransaction(id: string): Promise<any> {
+    const PUBLIC_KEY = process.env.PUBLIC_KEY;
+    const ENVIRONMENT_URL = process.env.ENVIRONMENT_URL;
+
+    const headers = {
+      Authorization: `Bearer ${PUBLIC_KEY}`,
+      'Content-Type': 'application/json',
+    };
+
+    return await firstValueFrom(
+      this.httpService
+        .get(`${ENVIRONMENT_URL}/transactions/${id}`, { headers })
         .pipe(map((response) => response.data)),
     );
   }
