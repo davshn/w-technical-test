@@ -6,6 +6,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsCreditCard,
   IsVisaOrMastercard,
@@ -16,6 +17,12 @@ import {
 } from '../validators/card.validator';
 
 export class CardTokenizationDto {
+  @ApiProperty({
+    description: 'Número de tarjeta de crédito (solo Visa o Mastercard)',
+    example: '4111111111111111',
+    minLength: 13,
+    maxLength: 19,
+  })
   @IsString()
   @IsNotEmpty({ message: 'El número de tarjeta es requerido' })
   @Transform(({ value }) => value?.replace(/[\s-]/g, ''))
@@ -23,12 +30,23 @@ export class CardTokenizationDto {
   @IsVisaOrMastercard({ message: 'Solo se aceptan tarjetas Visa o Mastercard' })
   number: string;
 
+  @ApiProperty({
+    description: 'Código de seguridad CVV/CVC (3 o 4 dígitos)',
+    example: '123',
+    minLength: 3,
+    maxLength: 4,
+  })
   @IsString()
   @IsNotEmpty({ message: 'El CVV es requerido' })
   @IsCVV({ message: 'CVV inválido (debe tener 3 o 4 dígitos)' })
   @Transform(({ value }) => value?.trim())
   cvc: string;
 
+  @ApiProperty({
+    description: 'Mes de expiración (01-12)',
+    example: '12',
+    pattern: '^(0[1-9]|1[0-2])$',
+  })
   @IsString()
   @IsNotEmpty({ message: 'El mes de expiración es requerido' })
   @Matches(/^(0[1-9]|1[0-2])$/, {
@@ -38,6 +56,13 @@ export class CardTokenizationDto {
   @Transform(({ value }) => value?.padStart(2, '0'))
   exp_month: string;
 
+  @ApiProperty({
+    description: 'Año de expiración (2 dígitos)',
+    example: '25',
+    pattern: '^\\d{2}$',
+    minLength: 2,
+    maxLength: 2,
+  })
   @IsString()
   @IsNotEmpty({ message: 'El año de expiración es requerido' })
   @Length(2, 2, { message: 'El año debe tener exactamente 2 dígitos' })
@@ -49,6 +74,12 @@ export class CardTokenizationDto {
   @Transform(({ value }) => value?.trim())
   exp_year: string;
 
+  @ApiProperty({
+    description:
+      'Nombre del titular de la tarjeta (como aparece en la tarjeta)',
+    example: 'JOHN DOE',
+    maxLength: 100,
+  })
   @IsString()
   @IsNotEmpty({ message: 'El nombre del titular es requerido' })
   @MaxLength(100, { message: 'El nombre no puede exceder 100 caracteres' })
