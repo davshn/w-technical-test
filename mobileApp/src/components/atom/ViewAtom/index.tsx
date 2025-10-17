@@ -137,6 +137,7 @@ export const View: React.FC<ViewAtomProps> = ({
 
   const cardBackground = useThemeColor({}, 'tint')
   const elevatedBackground = useThemeColor({}, 'primary')
+  const outlinedBackground = useThemeColor({}, 'background')
   const outlinedBorder = useThemeColor({}, 'secondary')
   const defaultShadowColor = useThemeColor({}, 'textPrimary')
 
@@ -178,7 +179,7 @@ export const View: React.FC<ViewAtomProps> = ({
         }
       case 'outlined':
         return {
-          backgroundColor: backgroundColor ?? 'transparent',
+          backgroundColor: backgroundColor ?? outlinedBackground,
           borderRadius: radiusValues[radius],
           borderWidth: borderWidth ?? 1,
           borderColor: borderColor ?? outlinedBorder,

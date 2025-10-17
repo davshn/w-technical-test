@@ -99,7 +99,7 @@ describe('Variant Styles', () => {
       </View>,
     )
     const view = screen.getByTestId('outlined-view')
-    expect(view.props.style.backgroundColor).toBe('transparent')
+    expect(view.props.style.backgroundColor).toBe(Colors.light.background)
     expect(view.props.style.borderWidth).toBe(1)
     expect(view.props.style.borderColor).toBe(Colors.light.secondary)
   })
