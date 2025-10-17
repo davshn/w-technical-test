@@ -21,6 +21,12 @@ import { TransactionsModule } from './transactions/transaction.module';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'mydatabase',
+      dialectOptions: {
+        ssl: {
+          require: false,
+          rejectUnauthorized: false,
+        },
+      },
       autoLoadModels: true,
       models: [Product, Transaction, TransactionProduct],
       synchronize: true,
