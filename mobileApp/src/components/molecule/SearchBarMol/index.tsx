@@ -5,7 +5,6 @@ import type { SearchBarProps } from './SearchBarProps'
 import { View, IconButton, TextInput } from '../../atom'
 import { FontAwesome } from "@react-native-vector-icons/fontawesome";
 
-// Iconos de ejemplo - reemplaza con tus propios iconos (react-native-vector-icons, expo-icons, etc.)
 const SearchIcon = ({ size, color }: { size: number; color: string }) => (
   <FontAwesome name="search" size={size} color={color} />
 )

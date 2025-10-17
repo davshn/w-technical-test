@@ -8,7 +8,7 @@ import { ProductCardSkeleton } from '../../molecule/ProductCardSkeletonMol'
 import type { Product } from '../../molecule/ProductCardMol/ProductCardProps'
 import type { ProductListProps } from './ProductListProps'
 
-export const ProductListOrg: React.FC<ProductListProps> = ({
+export const ProductList: React.FC<ProductListProps> = ({
   products = [],
   loading = false,
   onSearch,
