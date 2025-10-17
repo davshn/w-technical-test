@@ -116,8 +116,8 @@ yarn start:watch
 ```
 
 The application will be available at:
-- **API**: `http://localhost:3000`
-- **Swagger Documentation**: `http://localhost:3000/api/docs`
+- **API**: `http://18.116.39.97:3000:3000`
+- **Swagger Documentation**: `http://18.116.39.97:3000/api/docs`
 
 ## 🧪 Testing
 
@@ -163,7 +163,7 @@ All files           |   84    |    74.57 |   74.66 |   84.02 |
 
 ### Swagger UI
 
-Interactive API documentation is available at `http://localhost:3000/api/docs`
+Interactive API documentation is available at `http://18.116.39.97:3000/api/docs`
 
 Features:
 - **Interactive Testing**: Try endpoints directly from the browser
@@ -173,8 +173,8 @@ Features:
 
 ### Export Documentation
 
-- **JSON**: `http://localhost:3000/api/docs-json`
-- **YAML**: `http://localhost:3000/api/docs-yaml`
+- **JSON**: `http://18.116.39.97:3000/api/docs-json`
+- **YAML**: `http://18.116.39.97:3000/api/docs-yaml`
 
 ## 🔌 API Endpoints
 
@@ -372,12 +372,12 @@ src/
 
 ### 1. Get Acceptance Token
 ```bash
-curl -X GET http://localhost:3000/transactions/aceptance
+curl -X GET http://18.116.39.97:3000/transactions/aceptance
 ```
 
 ### 2. Tokenize Card
 ```bash
-curl -X POST http://localhost:3000/transactions/tokenize \
+curl -X POST http://18.116.39.97:3000/transactions/tokenize \
   -H "Content-Type: application/json" \
   -d '{
     "number": "4111111111111111",
@@ -390,7 +390,7 @@ curl -X POST http://localhost:3000/transactions/tokenize \
 
 ### 3. Create Transaction
 ```bash
-curl -X POST http://localhost:3000/transactions \
+curl -X POST http://18.116.39.97:3000/transactions \
   -H "Content-Type: application/json" \
   -d '{
     "customer": "client@example.com",
@@ -403,7 +403,7 @@ curl -X POST http://localhost:3000/transactions \
 
 ### 4. Validate and Finalize
 ```bash
-curl -X PUT http://localhost:3000/transactions/{transaction-id}
+curl -X PUT http://18.116.39.97:3000/transactions/{transaction-id}
 ```
 
 ## 🤝 Contributing
