@@ -43,6 +43,12 @@
 	<array>
 		<string>arm64</string>
 	</array>
+	<key>UIAppFonts</key>
+    <array>
+      <string>FontAwesome_Brands.ttf</string>
+      <string>FontAwesome_Regular.ttf</string>
+      <string>FontAwesome_Solid.ttf</string>
+    </array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
