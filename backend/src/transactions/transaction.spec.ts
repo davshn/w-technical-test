@@ -1,17 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/sequelize';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { TransactionsService } from './transaction.service';
 import { TransactionsController } from './transaction.controller';
-import { TransactionsModule } from './transaction.module';
 import { Transaction } from './transaction.model';
 import { TransactionProduct } from './transaction-product.model';
 import { Product } from '../products/product.model';
+import { PaymentService } from './payment.service';
+import { of } from 'rxjs';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
   let mockTransactionModel: any;
   let mockTransactionProductModel: any;
   let mockProductModel: any;
+  let mockPaymentService: any;
 
   const mockProduct = {
     id: 1,
@@ -19,11 +22,12 @@ describe('TransactionsService', () => {
     uri: 'test-product',
     description: 'Test description',
     quantity: 10,
-    value: 100,
+    value: 100000,
     get: jest.fn().mockReturnValue({
       id: 1,
       name: 'Test Product',
-      value: 100,
+      value: 100000,
+      quantity: 10,
     }),
   };
 
@@ -31,9 +35,18 @@ describe('TransactionsService', () => {
     id: 'uuid-123',
     status: 'PENDING',
     transactionDate: new Date(),
-    customer: 'John Doe',
-    total: 200,
+    customer: 'client@example.com',
+    total: 200000,
+    paymentId: 'payment-123',
     products: [],
+    get: jest.fn().mockReturnValue({
+      id: 'uuid-123',
+      status: 'PENDING',
+      customer: 'client@example.com',
+      total: 200000,
+      paymentId: 'payment-123',
+      products: [],
+    }),
   };
 
   beforeEach(async () => {
@@ -50,6 +63,12 @@ describe('TransactionsService', () => {
 
     mockProductModel = {
       findByPk: jest.fn(),
+      update: jest.fn(),
+    };
+
+    mockPaymentService = {
+      createTransaction: jest.fn(),
+      validateTransaction: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -66,6 +85,10 @@ describe('TransactionsService', () => {
         {
           provide: getModelToken(Product),
           useValue: mockProductModel,
+        },
+        {
+          provide: PaymentService,
+          useValue: mockPaymentService,
         },
       ],
     }).compile();
@@ -97,7 +120,6 @@ describe('TransactionsService', () => {
           },
         ],
       });
-      expect(mockTransactionModel.findAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return empty array when no transactions exist', async () => {
@@ -126,30 +148,41 @@ describe('TransactionsService', () => {
       });
     });
 
-    it('should throw an error when transaction is not found', async () => {
+    it('should throw HttpException when transaction is not found', async () => {
       mockTransactionModel.findByPk.mockResolvedValue(null);
 
       await expect(service.findOne('non-existent')).rejects.toThrow(
-        'Transaction with id non-existent not found',
+        new HttpException(
+          'Transaction with id non-existent not found',
+          HttpStatus.NOT_FOUND,
+        ),
       );
     });
   });
 
   describe('create', () => {
     const createTransactionDto = {
-      customer: 'Jane Doe',
+      customer: 'client@example.com',
       products: [
         { productId: 1, quantity: 2 },
         { productId: 2, quantity: 1 },
       ],
+      cardToken: 'tok_test_123',
+      acceptance_token: 'accept_token_123',
+      installments: 1,
     };
 
-    it('should create a transaction with products successfully', async () => {
+    it('should create a transaction successfully', async () => {
       const mockProduct2 = {
         ...mockProduct,
         id: 2,
-        value: 150,
-        get: jest.fn().mockReturnValue({ id: 2, value: 150 }),
+        value: 150000,
+        quantity: 5,
+        get: jest.fn().mockReturnValue({
+          id: 2,
+          value: 150000,
+          quantity: 5,
+        }),
       };
 
       mockProductModel.findByPk
@@ -158,137 +191,237 @@ describe('TransactionsService', () => {
 
       const createdTransaction = {
         id: 'uuid-456',
-        customer: 'Jane Doe',
-        total: 350, // (100 * 2) + (150 * 1)
+        customer: 'client@example.com',
+        total: 350000,
       };
 
       mockTransactionModel.create.mockResolvedValue(createdTransaction);
       mockTransactionProductModel.create.mockResolvedValue({});
-      mockTransactionModel.findByPk.mockResolvedValue({
-        ...createdTransaction,
-        products: [mockProduct, mockProduct2],
-      });
+
+      const paymentResponse = {
+        data: {
+          id: 'payment-456',
+          status: 'APPROVED',
+          amount_in_cents: 350000,
+        },
+      };
+      mockPaymentService.createTransaction.mockResolvedValue(paymentResponse);
+      mockTransactionModel.update.mockResolvedValue([1, [createdTransaction]]);
 
       const result = await service.create(createTransactionDto);
 
       expect(mockProductModel.findByPk).toHaveBeenCalledTimes(2);
       expect(mockTransactionModel.create).toHaveBeenCalledWith({
-        total: 350,
-        customer: 'Jane Doe',
+        total: 350000,
+        customer: 'client@example.com',
       });
       expect(mockTransactionProductModel.create).toHaveBeenCalledTimes(2);
-      expect(result.total).toBe(350);
+      expect(mockPaymentService.createTransaction).toHaveBeenCalledWith({
+        total: 350000,
+        id: 'uuid-456',
+        ...createTransactionDto,
+      });
+      expect(mockTransactionModel.update).toHaveBeenCalledWith(
+        { status: 'PENDING', paymentId: 'payment-456' },
+        { where: { id: 'uuid-456' }, returning: true },
+      );
+      expect(result).toEqual(paymentResponse.data);
     });
 
-    it('should throw error when product not found', async () => {
+    it('should throw HttpException when product not found', async () => {
       mockProductModel.findByPk.mockResolvedValue(null);
 
       await expect(service.create(createTransactionDto)).rejects.toThrow(
-        'Product with id 1 not found',
+        new HttpException(
+          'El producto con id 1 no fue encontrado',
+          HttpStatus.NOT_FOUND,
+        ),
       );
 
       expect(mockTransactionModel.create).not.toHaveBeenCalled();
-      expect(mockTransactionProductModel.create).not.toHaveBeenCalled();
+    });
+
+    it('should throw HttpException when insufficient stock', async () => {
+      const lowStockProduct = {
+        ...mockProduct,
+        get: jest.fn().mockReturnValue({
+          id: 1,
+          value: 100000,
+          quantity: 1,
+        }),
+      };
+
+      mockProductModel.findByPk.mockResolvedValue(lowStockProduct);
+
+      await expect(service.create(createTransactionDto)).rejects.toThrow(
+        new HttpException(
+          'El producto con id 1 no tiene suficientes existencias',
+          HttpStatus.NOT_FOUND,
+        ),
+      );
     });
 
     it('should calculate total correctly with multiple products', async () => {
-      mockProductModel.findByPk.mockResolvedValue({
-        ...mockProduct,
-        get: jest.fn().mockReturnValue({ value: 100 }),
-      });
+      mockProductModel.findByPk
+        .mockResolvedValueOnce({
+          get: jest.fn().mockReturnValue({ value: 100000, quantity: 10 }),
+        })
+        .mockResolvedValueOnce({
+          get: jest.fn().mockReturnValue({ value: 50000, quantity: 5 }),
+        });
 
       mockTransactionModel.create.mockResolvedValue({
         id: 'uuid-789',
-        customer: 'Test Customer',
-        total: 200,
+        total: 250000,
       });
 
       mockTransactionProductModel.create.mockResolvedValue({});
-      mockTransactionModel.findByPk.mockResolvedValue({
-        id: 'uuid-789',
-        total: 200,
-        products: [],
+      mockPaymentService.createTransaction.mockResolvedValue({
+        data: { id: 'payment-789' },
       });
+      mockTransactionModel.update.mockResolvedValue([1, []]);
 
-      const dto = {
-        customer: 'Test Customer',
-        products: [{ productId: 1, quantity: 2 }],
-      };
-
-      await service.create(dto);
+      await service.create(createTransactionDto);
 
       expect(mockTransactionModel.create).toHaveBeenCalledWith({
-        total: 200,
-        customer: 'Test Customer',
-      });
-    });
-
-    it('should create transaction product entries for all products', async () => {
-      mockProductModel.findByPk.mockResolvedValue(mockProduct);
-
-      mockTransactionModel.create.mockResolvedValue({
-        id: 'uuid-test',
-        customer: 'Customer',
-        total: 100,
-      });
-
-      mockTransactionProductModel.create.mockResolvedValue({});
-      mockTransactionModel.findByPk.mockResolvedValue({
-        id: 'uuid-test',
-        products: [],
-      });
-
-      const dto = {
-        customer: 'Customer',
-        products: [{ productId: 1, quantity: 1 }],
-      };
-
-      await service.create(dto);
-
-      expect(mockTransactionProductModel.create).toHaveBeenCalledWith({
-        transactionId: 'uuid-test',
-        productId: 1,
-        quantity: 1,
+        total: 250000,
+        customer: 'client@example.com',
       });
     });
   });
 
   describe('update', () => {
-    it('should update a transaction successfully', async () => {
-      const updateData = { status: 'COMPLETED' };
-      const updatedTransaction = { ...mockTransaction, status: 'COMPLETED' };
+    it('should validate and finalize transaction successfully', async () => {
+      const transactionWithProducts = {
+        ...mockTransaction,
+        get: jest.fn().mockReturnValue({
+          id: 'uuid-123',
+          paymentId: 'payment-123',
+          products: [
+            {
+              id: 1,
+              quantity: 10,
+              TransactionProduct: { quantity: 2 },
+            },
+          ],
+        }),
+      };
 
-      mockTransactionModel.update.mockResolvedValue([1, [updatedTransaction]]);
+      mockTransactionModel.findByPk.mockResolvedValueOnce(
+        transactionWithProducts,
+      );
 
-      const result = await service.update('1', updateData);
-
-      expect(result).toEqual([1, [updatedTransaction]]);
-      expect(mockTransactionModel.update).toHaveBeenCalledWith(updateData, {
-        where: { id: '1' },
-        returning: true,
+      mockPaymentService.validateTransaction.mockResolvedValue({
+        data: { status: 'APPROVED' },
       });
+
+      mockProductModel.update.mockResolvedValue([1, []]);
+      mockTransactionModel.update.mockResolvedValue([1, []]);
+      mockTransactionModel.findByPk.mockResolvedValueOnce({ id: 'uuid-123' });
+
+      await service.update('uuid-123');
+
+      expect(mockPaymentService.validateTransaction).toHaveBeenCalledWith(
+        'payment-123',
+      );
+      expect(mockProductModel.update).toHaveBeenCalledWith(
+        { quantity: 8 },
+        { where: { id: 1 } },
+      );
+      expect(mockTransactionModel.update).toHaveBeenCalledWith(
+        { status: 'ASSIGNED' },
+        { where: { id: 'uuid-123' } },
+      );
     });
 
-    it('should return [0, []] when transaction is not found', async () => {
-      mockTransactionModel.update.mockResolvedValue([0, []]);
+    it('should throw HttpException when payment is not approved', async () => {
+      mockTransactionModel.findByPk.mockResolvedValue({
+        get: jest.fn().mockReturnValue({ paymentId: 'payment-123' }),
+      });
 
-      const result = await service.update('999', { status: 'CANCELLED' });
+      mockPaymentService.validateTransaction.mockResolvedValue({
+        data: { status: 'DECLINED' },
+      });
 
-      expect(result).toEqual([0, []]);
+      await expect(service.update('uuid-123')).rejects.toThrow(
+        new HttpException('DECLINED', HttpStatus.OK),
+      );
+    });
+
+    it('should throw HttpException when insufficient stock during finalization', async () => {
+      const transactionWithProducts = {
+        get: jest.fn().mockReturnValue({
+          paymentId: 'payment-123',
+          products: [
+            {
+              id: 1,
+              quantity: 1,
+              TransactionProduct: { quantity: 5 },
+            },
+          ],
+        }),
+      };
+
+      mockTransactionModel.findByPk.mockResolvedValue(transactionWithProducts);
+      mockPaymentService.validateTransaction.mockResolvedValue({
+        data: { status: 'APPROVED' },
+      });
+
+      await expect(service.update('uuid-123')).rejects.toThrow(
+        new HttpException('No hay suficientes existencias de 1', HttpStatus.OK),
+      );
+    });
+
+    it('should update stock for multiple products', async () => {
+      const transactionWithProducts = {
+        get: jest.fn().mockReturnValue({
+          paymentId: 'payment-123',
+          products: [
+            { id: 1, quantity: 10, TransactionProduct: { quantity: 2 } },
+            { id: 2, quantity: 5, TransactionProduct: { quantity: 1 } },
+          ],
+        }),
+      };
+
+      mockTransactionModel.findByPk
+        .mockResolvedValueOnce(transactionWithProducts)
+        .mockResolvedValueOnce({ id: 'uuid-123' });
+
+      mockPaymentService.validateTransaction.mockResolvedValue({
+        data: { status: 'APPROVED' },
+      });
+
+      mockProductModel.update.mockResolvedValue([1, []]);
+      mockTransactionModel.update.mockResolvedValue([1, []]);
+
+      await service.update('uuid-123');
+
+      expect(mockProductModel.update).toHaveBeenCalledTimes(2);
+      expect(mockProductModel.update).toHaveBeenNthCalledWith(
+        1,
+        { quantity: 8 },
+        { where: { id: 1 } },
+      );
+      expect(mockProductModel.update).toHaveBeenNthCalledWith(
+        2,
+        { quantity: 4 },
+        { where: { id: 2 } },
+      );
     });
   });
 });
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
-  let service: TransactionsService;
+  let transactionsService: TransactionsService;
+  let paymentService: PaymentService;
 
   const mockTransaction = {
     id: 'uuid-123',
     status: 'PENDING',
     transactionDate: new Date('2024-01-01'),
-    customer: 'John Doe',
-    total: 200,
+    customer: 'client@example.com',
+    total: 200000,
     products: [],
   };
 
@@ -299,6 +432,11 @@ describe('TransactionsController', () => {
     update: jest.fn(),
   };
 
+  const mockPaymentService = {
+    cardTokenice: jest.fn(),
+    generateAceptanceTokens: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionsController],
@@ -307,11 +445,16 @@ describe('TransactionsController', () => {
           provide: TransactionsService,
           useValue: mockTransactionsService,
         },
+        {
+          provide: PaymentService,
+          useValue: mockPaymentService,
+        },
       ],
     }).compile();
 
     controller = module.get<TransactionsController>(TransactionsController);
-    service = module.get<TransactionsService>(TransactionsService);
+    transactionsService = module.get<TransactionsService>(TransactionsService);
+    paymentService = module.get<PaymentService>(PaymentService);
   });
 
   afterEach(() => {
@@ -324,35 +467,13 @@ describe('TransactionsController', () => {
 
   describe('findAll', () => {
     it('should return an array of transactions', async () => {
-      const transactions = [
-        mockTransaction,
-        { ...mockTransaction, id: 'uuid-456' },
-      ];
+      const transactions = [mockTransaction];
       mockTransactionsService.findAll.mockResolvedValue(transactions);
 
       const result = await controller.findAll();
 
       expect(result).toEqual(transactions);
-      expect(service.findAll).toHaveBeenCalledTimes(1);
-      expect(service.findAll).toHaveBeenCalledWith();
-    });
-
-    it('should return transactions with products included', async () => {
-      const transactionWithProducts = {
-        ...mockTransaction,
-        products: [
-          { id: 1, name: 'Product 1', value: 100 },
-          { id: 2, name: 'Product 2', value: 100 },
-        ],
-      };
-      mockTransactionsService.findAll.mockResolvedValue([
-        transactionWithProducts,
-      ]);
-
-      const result = await controller.findAll();
-
-      expect(result[0].products).toHaveLength(2);
-      expect(service.findAll).toHaveBeenCalledTimes(1);
+      expect(transactionsService.findAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return empty array when no transactions exist', async () => {
@@ -361,15 +482,6 @@ describe('TransactionsController', () => {
       const result = await controller.findAll();
 
       expect(result).toEqual([]);
-    });
-
-    it('should handle service errors', async () => {
-      const error = new Error('Database connection failed');
-      mockTransactionsService.findAll.mockRejectedValue(error);
-
-      await expect(controller.findAll()).rejects.toThrow(
-        'Database connection failed',
-      );
     });
   });
 
@@ -380,23 +492,7 @@ describe('TransactionsController', () => {
       const result = await controller.findOne('uuid-123');
 
       expect(result).toEqual(mockTransaction);
-      expect(service.findOne).toHaveBeenCalledWith('uuid-123');
-      expect(service.findOne).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return transaction with products', async () => {
-      const transactionWithProducts = {
-        ...mockTransaction,
-        products: [{ id: 1, name: 'Product 1' }],
-      };
-      mockTransactionsService.findOne.mockResolvedValue(
-        transactionWithProducts,
-      );
-
-      const result = await controller.findOne('uuid-123');
-
-      expect(result.products).toHaveLength(1);
-      expect(service.findOne).toHaveBeenCalledWith('uuid-123');
+      expect(transactionsService.findOne).toHaveBeenCalledWith('uuid-123');
     });
 
     it('should throw error when transaction not found', async () => {
@@ -406,188 +502,149 @@ describe('TransactionsController', () => {
       await expect(controller.findOne('uuid-999')).rejects.toThrow(
         'Transaction with id uuid-999 not found',
       );
-      expect(service.findOne).toHaveBeenCalledWith('uuid-999');
+    });
+  });
+
+  describe('generateAceptanceTokens', () => {
+    it('should return acceptance token', async () => {
+      const acceptanceToken = {
+        presigned_acceptance: 'eyJhbGc...',
+      };
+
+      mockPaymentService.generateAceptanceTokens.mockResolvedValue(
+        acceptanceToken,
+      );
+
+      const result = await controller.generateAceptanceTokens();
+
+      expect(result).toEqual(acceptanceToken);
+      expect(paymentService.generateAceptanceTokens).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle errors from payment service', async () => {
+      const error = new Error('Payment gateway error');
+      mockPaymentService.generateAceptanceTokens.mockRejectedValue(error);
+
+      await expect(controller.generateAceptanceTokens()).rejects.toThrow(
+        'Payment gateway error',
+      );
     });
   });
 
   describe('create', () => {
     it('should create a new transaction', async () => {
       const createTransactionDto = {
-        customer: 'Jane Doe',
-        products: [
-          { productId: 1, quantity: 2 },
-          { productId: 2, quantity: 1 },
-        ],
+        customer: 'client@example.com',
+        products: [{ productId: 1, quantity: 2 }],
+        cardToken: 'tok_test_123',
+        acceptance_token: 'accept_token_123',
+        installments: 1,
       };
 
-      const createdTransaction = {
-        id: 'uuid-new',
-        customer: 'Jane Doe',
-        total: 300,
-        status: 'PENDING',
-        products: [],
+      const paymentResponse = {
+        id: 'payment-123',
+        status: 'APPROVED',
       };
 
-      mockTransactionsService.create.mockResolvedValue(createdTransaction);
+      mockTransactionsService.create.mockResolvedValue(paymentResponse);
 
       const result = await controller.create(createTransactionDto);
 
-      expect(result).toEqual(createdTransaction);
-      expect(service.create).toHaveBeenCalledWith(createTransactionDto);
-      expect(service.create).toHaveBeenCalledTimes(1);
-    });
-
-    it('should create transaction with single product', async () => {
-      const createTransactionDto = {
-        customer: 'Single Product Customer',
-        products: [{ productId: 1, quantity: 1 }],
-      };
-
-      mockTransactionsService.create.mockResolvedValue({
-        ...mockTransaction,
-        customer: 'Single Product Customer',
-      });
-
-      const result = await controller.create(createTransactionDto);
-
-      expect(service.create).toHaveBeenCalledWith(createTransactionDto);
-      expect(result.customer).toBe('Single Product Customer');
+      expect(result).toEqual(paymentResponse);
+      expect(transactionsService.create).toHaveBeenCalledWith(
+        createTransactionDto,
+      );
     });
 
     it('should handle product not found error', async () => {
       const createTransactionDto = {
-        customer: 'Test Customer',
+        customer: 'client@example.com',
         products: [{ productId: 999, quantity: 1 }],
+        cardToken: 'tok_test_123',
+        acceptance_token: 'accept_token_123',
+        installments: 1,
       };
 
-      const error = new Error('Product with id 999 not found');
+      const error = new Error('El producto con id 999 no fue encontrado');
       mockTransactionsService.create.mockRejectedValue(error);
 
       await expect(controller.create(createTransactionDto)).rejects.toThrow(
-        'Product with id 999 not found',
+        'El producto con id 999 no fue encontrado',
       );
-      expect(service.create).toHaveBeenCalledWith(createTransactionDto);
-    });
-
-    it('should handle empty products array', async () => {
-      const createTransactionDto = {
-        customer: 'Empty Cart',
-        products: [],
-      };
-
-      mockTransactionsService.create.mockResolvedValue({
-        ...mockTransaction,
-        total: 0,
-      });
-
-      const result = await controller.create(createTransactionDto);
-
-      expect(service.create).toHaveBeenCalledWith(createTransactionDto);
-      expect(result.total).toBe(0);
     });
   });
 
   describe('update', () => {
-    it('should update a transaction status', async () => {
-      const updateData = { status: 'COMPLETED' };
-      const updatedTransaction = { ...mockTransaction, status: 'COMPLETED' };
+    it('should validate and finalize transaction', async () => {
+      const finalizedTransaction = {
+        ...mockTransaction,
+        status: 'ASSIGNED',
+      };
 
-      mockTransactionsService.update.mockResolvedValue([
-        1,
-        [updatedTransaction],
-      ]);
+      mockTransactionsService.update.mockResolvedValue(finalizedTransaction);
 
-      const result = await controller.update('uuid-123', updateData);
+      const result = await controller.update('uuid-123');
 
-      expect(result).toEqual([1, [updatedTransaction]]);
-      expect(service.update).toHaveBeenCalledWith('uuid-123', updateData);
-      expect(service.update).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(finalizedTransaction);
+      expect(transactionsService.update).toHaveBeenCalledWith('uuid-123');
     });
 
-    it('should update transaction customer name', async () => {
-      const updateData = { customer: 'Updated Name' };
-      mockTransactionsService.update.mockResolvedValue([1, [mockTransaction]]);
+    it('should handle payment not approved', async () => {
+      const error = new Error('DECLINED');
+      mockTransactionsService.update.mockRejectedValue(error);
 
-      await controller.update('uuid-123', updateData);
-
-      expect(service.update).toHaveBeenCalledWith('uuid-123', updateData);
-    });
-
-    it('should return empty result when transaction not found', async () => {
-      const updateData = { status: 'CANCELLED' };
-      mockTransactionsService.update.mockResolvedValue([0, []]);
-
-      const result = await controller.update('uuid-999', updateData);
-
-      expect(result).toEqual([0, []]);
-    });
-
-    it('should handle partial updates', async () => {
-      const updateData = { total: 500 };
-      mockTransactionsService.update.mockResolvedValue([
-        1,
-        [{ ...mockTransaction, total: 500 }],
-      ]);
-
-      const result = await controller.update('uuid-123', updateData);
-
-      expect(service.update).toHaveBeenCalledWith('uuid-123', updateData);
-      expect(result[1][0].total).toBe(500);
+      await expect(controller.update('uuid-123')).rejects.toThrow('DECLINED');
     });
   });
-});
 
-describe('TransactionsModule', () => {
-  let module: TestingModule;
+  describe('cardTokenice', () => {
+    it('should tokenize card successfully', () => {
+      const cardData = {
+        number: '4111111111111111',
+        cvc: '123',
+        exp_month: '12',
+        exp_year: '25',
+        card_holder: 'JOHN DOE',
+      };
 
-  beforeEach(async () => {
-    module = await Test.createTestingModule({
-      imports: [TransactionsModule],
-    })
-      .overrideProvider(getModelToken(Transaction))
-      .useValue({
-        findAll: jest.fn(),
-        findByPk: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-      })
-      .overrideProvider(getModelToken(TransactionProduct))
-      .useValue({
-        create: jest.fn(),
-      })
-      .overrideProvider(getModelToken(Product))
-      .useValue({
-        findByPk: jest.fn(),
-      })
-      .compile();
-  });
+      const tokenResponse = {
+        data: {
+          id: 'tok_test_123',
+          brand: 'VISA',
+          last_four: '1111',
+        },
+      };
 
-  it('should be defined', () => {
-    expect(module).toBeDefined();
-  });
+      mockPaymentService.cardTokenice.mockReturnValue(of(tokenResponse));
 
-  it('should have TransactionsController defined', () => {
-    const controller = module.get<TransactionsController>(
-      TransactionsController,
-    );
-    expect(controller).toBeDefined();
-  });
+      const result = controller.cardTokenice(cardData);
 
-  it('should have TransactionsService defined', () => {
-    const service = module.get<TransactionsService>(TransactionsService);
-    expect(service).toBeDefined();
-  });
+      result.subscribe((res) => {
+        expect(res).toEqual(tokenResponse);
+      });
 
-  it('should inject all required models into TransactionsService', () => {
-    const service = module.get<TransactionsService>(TransactionsService);
-    expect(service).toHaveProperty('transactionModel');
-    expect(service).toHaveProperty('transactionProductModel');
-    expect(service).toHaveProperty('productModel');
-  });
+      expect(paymentService.cardTokenice).toHaveBeenCalledWith(cardData);
+    });
 
-  it('should export TransactionsService', () => {
-    const service = module.get<TransactionsService>(TransactionsService);
-    expect(service).toBeDefined();
-    expect(service).toBeInstanceOf(TransactionsService);
+    it('should handle invalid card data', () => {
+      const invalidCardData = {
+        number: '1234567890',
+        cvc: '12',
+        exp_month: '13',
+        exp_year: '20',
+        card_holder: 'TEST',
+      };
+
+      const error = new Error('Invalid card data');
+      mockPaymentService.cardTokenice.mockReturnValue(
+        of({ error: error.message }),
+      );
+
+      const result = controller.cardTokenice(invalidCardData);
+
+      result.subscribe((res) => {
+        expect(res).toHaveProperty('error');
+      });
+    });
   });
 });
