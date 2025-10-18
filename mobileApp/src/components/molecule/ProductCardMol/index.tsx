@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { View, Text, Badge, Image, Button } from '../../atom'
 import type { ProductCardProps } from './ProductCardProps'
+import { formatPrice } from '../../../utils/utils';
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
@@ -13,15 +14,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   testID,
 }) => {
   const { id, name, uri, description, quantity, value } = product
-
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
 
   const getStockBadgeVariant = (): 'success' | 'warning' | 'error' => {
     if (quantity > 10) return 'success'
