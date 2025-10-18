@@ -29,7 +29,7 @@ import { TransactionsModule } from './transactions/transaction.module';
       },
       autoLoadModels: true,
       models: [Product, Transaction, TransactionProduct],
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     ProductsModule,
