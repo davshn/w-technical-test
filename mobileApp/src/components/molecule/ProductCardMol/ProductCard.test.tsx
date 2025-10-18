@@ -13,45 +13,45 @@ describe('ProductCard - Integration Tests', () => {
   }
 
   const mockOnPress = jest.fn()
-  const mockOnAddToCart = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('debe renderizar correctamente con todos los elementos', () => {
+  it('should render correctly with all elements', () => {
     const { getByText, getByTestId } = render(
       <ProductCard
         product={mockProduct}
         onPress={mockOnPress}
-        onAddToCart={mockOnAddToCart}
         testID="product-card"
       />,
     )
 
     expect(getByText('Laptop Gaming ASUS ROG')).toBeTruthy()
-    expect(getByText(/Laptop de alto rendimiento/)).toBeTruthy()
-    expect(getByText('15 disponibles')).toBeTruthy()
+    expect(getByText('15 disp.')).toBeTruthy()
+    expect(getByTestId('product-card-image')).toBeTruthy()
+    expect(getByTestId('product-card-price')).toBeTruthy()
+    expect(getByText('Ver detalle')).toBeTruthy()
   })
 
-  it('debe mostrar badge verde cuando hay más de 10 unidades', () => {
+  it('should show green badge when stock is more than 10 units', () => {
     const { getByText } = render(
       <ProductCard product={mockProduct} testID="product-card" />,
     )
 
-    expect(getByText('15 disponibles')).toBeTruthy()
+    expect(getByText('15 disp.')).toBeTruthy()
   })
 
-  it('debe mostrar badge amarillo cuando hay pocas unidades', () => {
+  it('should show yellow badge when stock is low', () => {
     const lowStockProduct = { ...mockProduct, quantity: 3 }
     const { getByText } = render(
       <ProductCard product={lowStockProduct} testID="product-card" />,
     )
 
-    expect(getByText('Solo 3 disponibles')).toBeTruthy()
+    expect(getByText('Solo 3')).toBeTruthy()
   })
 
-  it('debe mostrar "Agotado" cuando no hay stock', () => {
+  it('should show "Agotado" when out of stock', () => {
     const outOfStockProduct = { ...mockProduct, quantity: 0 }
     const { getByText } = render(
       <ProductCard product={outOfStockProduct} testID="product-card" />,
@@ -60,33 +60,11 @@ describe('ProductCard - Integration Tests', () => {
     expect(getByText('Agotado')).toBeTruthy()
   })
 
-  it('debe deshabilitar botones cuando no hay stock', () => {
-    const outOfStockProduct = { ...mockProduct, quantity: 0 }
-    const { getByTestId } = render(
-      <ProductCard
-        product={outOfStockProduct}
-        onPress={mockOnPress}
-        onAddToCart={mockOnAddToCart}
-        testID="product-card"
-      />,
-    )
-
-    const detailButton = getByTestId('product-card-detail-btn')
-    const addButton = getByTestId('product-card-add-btn')
-
-    fireEvent.press(detailButton)
-    fireEvent.press(addButton)
-
-    expect(mockOnPress).not.toHaveBeenCalled()
-    expect(mockOnAddToCart).not.toHaveBeenCalled()
-  })
-
-  it('debe llamar onPress cuando se presiona "Ver detalle"', () => {
+  it('should call onPress when pressing "Ver detalle" button', () => {
     const { getByTestId } = render(
       <ProductCard
         product={mockProduct}
         onPress={mockOnPress}
-        onAddToCart={mockOnAddToCart}
         testID="product-card"
       />,
     )
@@ -98,31 +76,20 @@ describe('ProductCard - Integration Tests', () => {
     expect(mockOnPress).toHaveBeenCalledTimes(1)
   })
 
-  it('debe llamar onAddToCart cuando se presiona "Agregar"', () => {
+  it('should format price correctly in COP', () => {
     const { getByTestId } = render(
-      <ProductCard
-        product={mockProduct}
-        onPress={mockOnPress}
-        onAddToCart={mockOnAddToCart}
-        testID="product-card"
-      />,
-    )
-
-    const addButton = getByTestId('product-card-add-btn')
-    fireEvent.press(addButton)
-
-    expect(mockOnAddToCart).toHaveBeenCalledWith(mockProduct)
-    expect(mockOnAddToCart).toHaveBeenCalledTimes(1)
-  })
-
-  it('debe formatear el precio correctamente en COP', () => {
-    const { getByText } = render(
       <ProductCard product={mockProduct} testID="product-card" />,
     )
-    expect(getByText(/4\.500\.000/)).toBeTruthy()
+
+    const priceElement = getByTestId('product-card-price')
+    const priceText = Array.isArray(priceElement.props.children)
+      ? priceElement.props.children.join('')
+      : priceElement.props.children
+
+    expect(priceText).toContain('4.500.000')
   })
 
-  it('debe renderizar en modo compact correctamente', () => {
+  it('should render in compact mode correctly', () => {
     const { getByTestId } = render(
       <ProductCard
         product={mockProduct}
@@ -134,7 +101,7 @@ describe('ProductCard - Integration Tests', () => {
     expect(getByTestId('product-card')).toBeTruthy()
   })
 
-  it('debe ocultar el badge de stock cuando showStock es false', () => {
+  it('should hide stock badge when showStock is false', () => {
     const { queryByText } = render(
       <ProductCard
         product={mockProduct}
@@ -143,6 +110,89 @@ describe('ProductCard - Integration Tests', () => {
       />,
     )
 
-    expect(queryByText('15 disponibles')).toBeNull()
+    expect(queryByText('15 disp.')).toBeNull()
+  })
+
+  it('should render image with correct aspect ratio', () => {
+    const { getByTestId } = render(
+      <ProductCard
+        product={mockProduct}
+        imageAspectRatio="16:9"
+        testID="product-card"
+      />,
+    )
+
+    expect(getByTestId('product-card-image')).toBeTruthy()
+  })
+
+  it('should display product name limited to 2 lines', () => {
+    const longNameProduct = {
+      ...mockProduct,
+      name: 'This is a very long product name that should be truncated to two lines maximum',
+    }
+    const { getByTestId } = render(
+      <ProductCard product={longNameProduct} testID="product-card" />,
+    )
+
+    expect(getByTestId('product-card-name')).toBeTruthy()
+  })
+
+  it('should render with responsive enabled', () => {
+    const { getByTestId } = render(
+      <ProductCard
+        product={mockProduct}
+        responsive={true}
+        testID="product-card"
+      />,
+    )
+
+    expect(getByTestId('product-card')).toBeTruthy()
+  })
+
+  it('should handle products with large prices correctly', () => {
+    const expensiveProduct = { ...mockProduct, value: 999999999 }
+    const { getByTestId } = render(
+      <ProductCard product={expensiveProduct} testID="product-card" />,
+    )
+
+    const priceElement = getByTestId('product-card-price')
+    const priceText = Array.isArray(priceElement.props.children)
+      ? priceElement.props.children.join('')
+      : priceElement.props.children
+
+    expect(priceText).toContain('999.999.999')
+  })
+
+  it('should show correct stock label for 5 units', () => {
+    const fiveUnitsProduct = { ...mockProduct, quantity: 5 }
+    const { getByText } = render(
+      <ProductCard product={fiveUnitsProduct} testID="product-card" />,
+    )
+
+    expect(getByText('Solo 5')).toBeTruthy()
+  })
+
+  it('should show correct stock label for 11 units', () => {
+    const elevenUnitsProduct = { ...mockProduct, quantity: 11 }
+    const { getByText } = render(
+      <ProductCard product={elevenUnitsProduct} testID="product-card" />,
+    )
+
+    expect(getByText('11 disp.')).toBeTruthy()
+  })
+
+  it('should render detail button enabled by default', () => {
+    const { getByTestId } = render(
+      <ProductCard
+        product={mockProduct}
+        onPress={mockOnPress}
+        testID="product-card"
+      />,
+    )
+
+    const detailButton = getByTestId('product-card-detail-btn')
+    fireEvent.press(detailButton)
+
+    expect(mockOnPress).toHaveBeenCalled()
   })
 })
