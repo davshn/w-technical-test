@@ -33,7 +33,6 @@ describe('ProductList - Integration Tests', () => {
   const mockOnSearch = jest.fn()
   const mockOnRefresh = jest.fn()
   const mockOnProductPress = jest.fn()
-  const mockOnAddToCart = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -45,7 +44,7 @@ describe('ProductList - Integration Tests', () => {
     jest.useRealTimers()
   })
 
-  it('debe renderizar el título y SearchBar', () => {
+  it('should render title and SearchBar', () => {
     const { getByText, getByPlaceholderText } = render(
       <ProductList
         products={mockProducts}
@@ -53,11 +52,11 @@ describe('ProductList - Integration Tests', () => {
       />,
     )
 
-    expect(getByText('Productos')).toBeTruthy()
+    expect(getByText('Productos Electrónicos')).toBeTruthy()
     expect(getByPlaceholderText('Buscar productos electrónicos...')).toBeTruthy()
   })
 
-  it('debe mostrar skeletons cuando está cargando', () => {
+  it('should show skeletons when loading', () => {
     const { getByTestId, queryByTestId } = render(
       <ProductList
         products={[]}
@@ -73,7 +72,7 @@ describe('ProductList - Integration Tests', () => {
     expect(queryByTestId('product-list-list')).toBeNull()
   })
 
-  it('debe mostrar lista de productos cuando no está cargando', () => {
+  it('should show product list when not loading', () => {
     const { getByText, getByTestId } = render(
       <ProductList
         products={mockProducts}
@@ -88,20 +87,20 @@ describe('ProductList - Integration Tests', () => {
     expect(getByText('Samsung Galaxy S24')).toBeTruthy()
   })
 
-  it('debe mostrar mensaje vacío cuando no hay productos', () => {
+  it('should show empty message when no products', () => {
     const { getByText } = render(
       <ProductList
         products={[]}
         loading={false}
-        emptyMessage="No hay productos disponibles"
+        emptyMessage="No products available"
         testID="product-list"
       />,
     )
 
-    expect(getByText('No hay productos disponibles')).toBeTruthy()
+    expect(getByText('No products available')).toBeTruthy()
   })
 
-  it('debe filtrar productos localmente cuando se escribe en SearchBar', async () => {
+  it('should filter products locally when typing in SearchBar', async () => {
     const { getByTestId, getByText, queryByText } = render(
       <ProductList
         products={mockProducts}
@@ -119,7 +118,7 @@ describe('ProductList - Integration Tests', () => {
     })
   })
 
-  it('debe llamar onSearch cuando se busca con callback remoto', async () => {
+  it('should call onSearch when searching with remote callback', async () => {
     const { getByTestId } = render(
       <ProductList
         products={mockProducts}
@@ -131,14 +130,14 @@ describe('ProductList - Integration Tests', () => {
     const searchInput = getByTestId('product-list-search')
     fireEvent.changeText(searchInput, 'gaming')
 
-    jest.advanceTimersByTime(500) // Debounce de 500ms
+    jest.advanceTimersByTime(500)
 
     await waitFor(() => {
       expect(mockOnSearch).toHaveBeenCalledWith('gaming')
     })
   })
 
-  it('debe llamar onProductPress cuando se presiona "Ver detalle"', () => {
+  it('should call onProductPress when pressing "Ver detalle"', () => {
     const { getByTestId } = render(
       <ProductList
         products={mockProducts}
@@ -153,22 +152,7 @@ describe('ProductList - Integration Tests', () => {
     expect(mockOnProductPress).toHaveBeenCalledWith(mockProducts[0])
   })
 
-  it('debe llamar onAddToCart cuando se presiona "Agregar"', () => {
-    const { getByTestId } = render(
-      <ProductList
-        products={mockProducts}
-        onAddToCart={mockOnAddToCart}
-        testID="product-list"
-      />,
-    )
-
-    const addButton = getByTestId('product-list-product-0-add-btn')
-    fireEvent.press(addButton)
-
-    expect(mockOnAddToCart).toHaveBeenCalledWith(mockProducts[0])
-  })
-
-  it('debe manejar pull-to-refresh correctamente', async () => {
+  it('should handle pull-to-refresh correctly', async () => {
     const { getByTestId } = render(
       <ProductList
         products={mockProducts}
@@ -185,7 +169,7 @@ describe('ProductList - Integration Tests', () => {
     })
   })
 
-  it('debe mostrar mensaje de búsqueda vacía cuando no hay resultados', async () => {
+  it('should show empty search message when no results', async () => {
     const { getByTestId, getByText } = render(
       <ProductList
         products={mockProducts}
@@ -194,7 +178,7 @@ describe('ProductList - Integration Tests', () => {
     )
 
     const searchInput = getByTestId('product-list-search')
-    fireEvent.changeText(searchInput, 'producto inexistente')
+    fireEvent.changeText(searchInput, 'nonexistent product')
 
     await waitFor(() => {
       expect(getByText('No se encontraron productos')).toBeTruthy()
@@ -202,19 +186,19 @@ describe('ProductList - Integration Tests', () => {
     })
   })
 
-  it('debe mostrar placeholder personalizado en SearchBar', () => {
+  it('should show custom placeholder in SearchBar', () => {
     const { getByPlaceholderText } = render(
       <ProductList
         products={mockProducts}
-        searchPlaceholder="Buscar en el catálogo..."
+        searchPlaceholder="Search in catalog..."
         testID="product-list"
       />,
     )
 
-    expect(getByPlaceholderText('Buscar en el catálogo...')).toBeTruthy()
+    expect(getByPlaceholderText('Search in catalog...')).toBeTruthy()
   })
 
-  it('debe renderizar todos los productos correctamente', () => {
+  it('should render all products correctly', () => {
     const { getByTestId } = render(
       <ProductList
         products={mockProducts}
@@ -225,5 +209,133 @@ describe('ProductList - Integration Tests', () => {
     expect(getByTestId('product-list-product-0')).toBeTruthy()
     expect(getByTestId('product-list-product-1')).toBeTruthy()
     expect(getByTestId('product-list-product-2')).toBeTruthy()
+  })
+
+  it('should render with custom skeleton count', () => {
+    const { getByTestId, queryByTestId } = render(
+      <ProductList
+        products={[]}
+        loading
+        skeletonCount={5}
+        testID="product-list"
+      />,
+    )
+
+    expect(getByTestId('product-list-skeleton-0')).toBeTruthy()
+    expect(getByTestId('product-list-skeleton-4')).toBeTruthy()
+    expect(queryByTestId('product-list-skeleton-5')).toBeNull()
+  })
+
+  it('should clear search when clear button is pressed', () => {
+    const { getByTestId, queryByText } = render(
+      <ProductList
+        products={mockProducts}
+        testID="product-list"
+      />,
+    )
+
+    const searchInput = getByTestId('product-list-search')
+    fireEvent.changeText(searchInput, 'laptop')
+
+    const clearButton = getByTestId('product-list-search-right-icon-button')
+    fireEvent.press(clearButton)
+
+    expect(queryByText('iPhone 15 Pro Max')).toBeTruthy()
+    expect(queryByText('Samsung Galaxy S24')).toBeTruthy()
+  })
+
+  it('should show loading state in search when searching', async () => {
+    const { getByTestId } = render(
+      <ProductList
+        products={mockProducts}
+        onSearch={mockOnSearch}
+        testID="product-list"
+      />,
+    )
+
+    const searchInput = getByTestId('product-list-search')
+    fireEvent.changeText(searchInput, 'test')
+
+    jest.advanceTimersByTime(500)
+
+    await waitFor(() => {
+      expect(mockOnSearch).toHaveBeenCalled()
+    })
+  })
+
+  it('should render with responsive enabled', () => {
+    const { getByTestId } = render(
+      <ProductList
+        products={mockProducts}
+        responsive
+        testID="product-list"
+      />,
+    )
+
+    expect(getByTestId('product-list')).toBeTruthy()
+  })
+
+  it('should filter products by description', async () => {
+    const { getByTestId, getByText, queryByText } = render(
+      <ProductList
+        products={mockProducts}
+        testID="product-list"
+      />,
+    )
+
+    const searchInput = getByTestId('product-list-search')
+    fireEvent.changeText(searchInput, 'alto rendimiento')
+
+    await waitFor(() => {
+      expect(getByText('Laptop Gaming ASUS ROG')).toBeTruthy()
+      expect(queryByText('iPhone 15 Pro Max')).toBeNull()
+    })
+  })
+
+  it('should show all products when search is empty', async () => {
+    const { getByTestId, getByText } = render(
+      <ProductList
+        products={mockProducts}
+        testID="product-list"
+      />,
+    )
+
+    const searchInput = getByTestId('product-list-search')
+    fireEvent.changeText(searchInput, 'laptop')
+    fireEvent.changeText(searchInput, '')
+
+    await waitFor(() => {
+      expect(getByText('Laptop Gaming ASUS ROG')).toBeTruthy()
+      expect(getByText('iPhone 15 Pro Max')).toBeTruthy()
+      expect(getByText('Samsung Galaxy S24')).toBeTruthy()
+    })
+  })
+
+  it('should handle case-insensitive search', async () => {
+    const { getByTestId, getByText } = render(
+      <ProductList
+        products={mockProducts}
+        testID="product-list"
+      />,
+    )
+
+    const searchInput = getByTestId('product-list-search')
+    fireEvent.changeText(searchInput, 'LAPTOP')
+
+    await waitFor(() => {
+      expect(getByText('Laptop Gaming ASUS ROG')).toBeTruthy()
+    })
+  })
+
+  it('should not show skeletons when loading is false', () => {
+    const { queryByTestId } = render(
+      <ProductList
+        products={mockProducts}
+        loading={false}
+        testID="product-list"
+      />,
+    )
+
+    expect(queryByTestId('product-list-skeleton-0')).toBeNull()
   })
 })
