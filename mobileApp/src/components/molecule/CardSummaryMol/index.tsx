@@ -151,6 +151,13 @@ export const CartSummary: React.FC<CartSummaryMolProps> = ({
               >
                 •••• {paymentMethod!.lastFourDigits}
               </Text>
+              <Button
+                variant="icon"
+                size="sm"
+                icon={<FontAwesome name="trash-o" />}
+                onPress={onAddPaymentMethod}
+                testID={`${testID}-close-btn`}
+              />
             </View>
             <Text
               size="sm"

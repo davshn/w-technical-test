@@ -7,18 +7,20 @@ import type { RootState } from '../../stateManagement/store'
 import type { CardFormData } from '../../components/molecule/AddCardModalMol/AddCardModalProps'
 import type { PaymentMethod } from '../../components/organism/CartOrg/CartProps'
 import { getAceptanceToken, tokenizeCard, createTransaction } from '../../services/services'
-import { addAcceptanceToken,addCustomer, addBrand, addLastFour, addCardToken, addInstallments, addTransactionId } from '../../stateManagement/reducers/transaction.reducer'
+import { addAcceptanceToken, addCustomer, addBrand, addLastFour, addCardToken, addInstallments, addTransactionId } from '../../stateManagement/reducers/transaction.reducer'
 import { removeFromCart, updateCartItemQuantity } from '../../stateManagement/reducers/cart.reducer'
 import { useNavigation } from '@react-navigation/native'
+
 
 export default function CartScreen() {
   const dispatch = useDispatch()
   const navigation = useNavigation()
 
+
   const cartItems = useSelector((state: RootState) => state.cart.products)
   const products = useSelector((state: RootState) => state.products.products)
   const transaction = useSelector((state: RootState) => { return state.transaction })
-  console.warn('🚀 ~ CartScreen ~ transaction:', transaction)
+
 
   const [toastVisible, setToastVisible] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
@@ -28,6 +30,7 @@ export default function CartScreen() {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+
   const availableProducts = useMemo(() => {
     return products.map(p => ({
       id: p.id,
@@ -35,13 +38,16 @@ export default function CartScreen() {
     }))
   }, [products])
 
+
   const subtotal = useMemo(() => {
     return cartItems.reduce((sum: any, item: any) => sum + (item.value * item.quantity), 0)
   }, [cartItems])
 
+
   const total = useMemo(() => {
     return subtotal
   }, [subtotal])
+
 
   const handleQuantityChange = (id: number, quantity: number) => {
     try {
@@ -57,6 +63,7 @@ export default function CartScreen() {
     }
   }
 
+
   const handleRemoveItem = (id: number) => {
     try {
       dispatch(removeFromCart(id))
@@ -71,6 +78,7 @@ export default function CartScreen() {
     }
   }
 
+
   const handleAddPaymentMethod = async () => {
     try {
       const { presigned_acceptance } = await getAceptanceToken()
@@ -84,6 +92,7 @@ export default function CartScreen() {
     }
   }
 
+
   const handleCardAdded = async (cardData: CardFormData) => {
     dispatch(addCustomer(cardData.email))
     const dataCleared = {
@@ -95,6 +104,7 @@ export default function CartScreen() {
     }
     try {
       const tokenResponse = await tokenizeCard(dataCleared)
+
 
       if (tokenResponse.status === 'CREATED') {
         dispatch(addCardToken(tokenResponse.data.id))
@@ -117,9 +127,11 @@ export default function CartScreen() {
     }
   }
 
+
   const handleInstallmentsChange = (value: number) => {
     dispatch(addInstallments(value))
   }
+
 
   const handleCheckout = async () => {
     if (!paymentMethod.cardType) {
@@ -129,12 +141,14 @@ export default function CartScreen() {
       return
     }
 
+
     if (cartItems.length === 0) {
       setToastMessage('Tu carrito está vacío')
       setToastType('error')
       setToastVisible(true)
       return
     }
+
 
     try {
       const transactionData = {
@@ -165,6 +179,7 @@ export default function CartScreen() {
       console.error('Error processing checkout:', error)
     }
   }
+
 
   return (
     <>
@@ -207,6 +222,7 @@ export default function CartScreen() {
   )
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -214,3 +230,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
 })
+
