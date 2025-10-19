@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   emptyIcon: {
     fontSize: 80,
     marginBottom: 16,
+    height: 100,
   },
   emptyTitle: {
     marginBottom: 8,
