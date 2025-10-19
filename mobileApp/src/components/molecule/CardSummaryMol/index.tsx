@@ -138,8 +138,8 @@ export const CartSummary: React.FC<CartSummaryMolProps> = ({
         ) : (
           <View style={styles.paymentMethodContainer}>
             <View style={styles.cardLogoContainer}>
-              { paymentMethod.cardType === 'VISA' && (<FontAwesome name="cc-visa" size={40} color={'#1a1f71'}/>) }
-              { paymentMethod.cardType === 'MASTERCARD' && (<FontAwesome name="cc-mastercard" size={40} color={'#eb001b'}/>) }
+              { paymentMethod.cardType === 'VISA' && (<FontAwesome name="cc-visa" size={40} color={'#1a1f71'} testID='cart-summary-card-logo'/>) }
+              { paymentMethod.cardType === 'MASTERCARD' && (<FontAwesome name="cc-mastercard" size={40} color={'#eb001b'} testID='cart-summary-card-logo'/>) }
               <Text
                 size="sm"
                 color="secondary"
