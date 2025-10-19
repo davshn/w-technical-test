@@ -1,11 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from './Home';
+import CartScreen from './Cart';
 
 export const MyTabs = createBottomTabNavigator({
   screenOptions: {
     headerShown: false,
   },
   screens: {
-    Home: HomeScreen,
+    Inicio: HomeScreen,
+    Carrito: CartScreen,
   },
 });
