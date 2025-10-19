@@ -178,9 +178,8 @@ describe('Cart - Integration Tests', () => {
 
   it('should call onCheckout when checkout button is pressed', () => {
     const mockPaymentMethod = {
-      cardLogo: { uri: 'https://example.com/visa.png' },
       lastFourDigits: '4242',
-      cardType: 'visa' as const,
+      cardType: 'VISA' as const,
     }
 
     const { getByTestId } = render(
@@ -315,9 +314,8 @@ describe('Cart - Integration Tests', () => {
 
   it('should show payment method in summary when provided', () => {
     const mockPaymentMethod = {
-      cardLogo: { uri: 'https://example.com/visa.png' },
       lastFourDigits: '4242',
-      cardType: 'visa' as const,
+      cardType: 'VISA' as const,
     }
 
     const { getByTestId } = render(

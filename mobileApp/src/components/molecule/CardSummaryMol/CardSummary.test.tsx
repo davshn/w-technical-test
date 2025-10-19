@@ -12,9 +12,8 @@ describe('CartSummary - Integration Tests', () => {
   const mockOnCheckout = jest.fn()
 
   const mockPaymentMethod = {
-    cardLogo: { uri: 'https://example.com/visa.png' },
     lastFourDigits: '4242',
-    cardType: 'visa' as const,
+    cardType: 'VISA' as const,
   }
 
   beforeEach(() => {
@@ -380,7 +379,7 @@ describe('CartSummary - Integration Tests', () => {
   it('should show mastercard logo when card type is mastercard', () => {
     const mastercardPayment = {
       ...mockPaymentMethod,
-      cardType: 'mastercard' as const,
+      cardType: 'MASTERCARD' as const,
       cardLogo: { uri: 'https://example.com/mastercard.png' },
     }
 
