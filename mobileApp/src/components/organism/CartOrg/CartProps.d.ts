@@ -40,4 +40,6 @@ export interface CartOrgProps {
   handleCardAdded?: (cardData: CardFormData) => Promise<void>
   showPaymentModal?: boolean
   setShowPaymentModal?: (visible: boolean) => void
+  installments?: number
+  setInstallments?: (value: number) => void
 }

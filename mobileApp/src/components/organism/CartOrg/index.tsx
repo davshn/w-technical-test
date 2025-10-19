@@ -27,7 +27,9 @@ export const Cart: React.FC<CartOrgProps> = ({
   testID = 'cart',
   handleCardAdded,
   showPaymentModal,
-  setShowPaymentModal
+  setShowPaymentModal,
+  installments,
+  setInstallments,
 }) => {
 
   const getAvailableStock = (productId: number): number => {
@@ -126,6 +128,8 @@ export const Cart: React.FC<CartOrgProps> = ({
         onCheckout={onCheckout}
         responsive={responsive}
         testID={`${testID}-summary`}
+        installments={installments}
+        setInstallments={setInstallments!}
       />
     </View>
   )

@@ -18,4 +18,6 @@ export interface CartSummaryMolProps {
   onAddPaymentMethod?: () => void
   onCheckout?: () => void
   testID?: string
+  installments?: number
+  setInstallments?: (value: number) => void
 }

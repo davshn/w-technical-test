@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native'
 import { View, Text, Divider, Button, Image } from '../../atom'
 import type { CartSummaryMolProps } from './CardSummaryProps'
 import { FontAwesome } from "@react-native-vector-icons/fontawesome"
+import { StepperInput } from '../../atom'
 
 export const CartSummary: React.FC<CartSummaryMolProps> = ({
   subtotal,
@@ -16,6 +17,8 @@ export const CartSummary: React.FC<CartSummaryMolProps> = ({
   paymentMethod,
   onAddPaymentMethod,
   onCheckout,
+  installments = 1,
+  setInstallments,
   testID = 'cart-summary',
 }) => {
   const formatPrice = (price: number) => {
@@ -125,7 +128,7 @@ export const CartSummary: React.FC<CartSummaryMolProps> = ({
           Pagar con:
         </Text>
 
-        {!paymentMethod ? (
+        {!paymentMethod!.lastFourDigits ? (
           <Button
             title="Agregar tarjeta de crédito"
             variant="outline"
@@ -138,18 +141,35 @@ export const CartSummary: React.FC<CartSummaryMolProps> = ({
         ) : (
           <View style={styles.paymentMethodContainer}>
             <View style={styles.cardLogoContainer}>
-              { paymentMethod.cardType === 'VISA' && (<FontAwesome name="cc-visa" size={40} color={'#1a1f71'} testID='cart-summary-card-logo'/>) }
-              { paymentMethod.cardType === 'MASTERCARD' && (<FontAwesome name="cc-mastercard" size={40} color={'#eb001b'} testID='cart-summary-card-logo'/>) }
+              {paymentMethod!.cardType === 'VISA' && (<FontAwesome name="cc-visa" size={40} color={'#1a1f71'} testID='cart-summary-card-logo' />)}
+              {paymentMethod!.cardType === 'MASTERCARD' && (<FontAwesome name="cc-mastercard" size={40} color={'#eb001b'} testID='cart-summary-card-logo' />)}
               <Text
                 size="sm"
                 color="secondary"
                 responsive={responsive}
                 testID={`${testID}-card-number`}
               >
-                •••• {paymentMethod.lastFourDigits}
+                •••• {paymentMethod!.lastFourDigits}
               </Text>
             </View>
-
+            <Text
+              size="sm"
+              color="secondary"
+              responsive={responsive}
+              testID={`${testID}-card-number`}
+            >
+              Numero de cuotas:
+            </Text>
+            <StepperInput
+              value={installments}
+              onChange={setInstallments!}
+              min={1}
+              max={36}
+              size="base"
+              variant="outlined"
+              responsive={responsive}
+              testID={`${testID}-stepper`}
+            />
             <Button
               title="Realizar compra"
               variant="primary"
