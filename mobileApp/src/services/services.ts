@@ -15,7 +15,7 @@ export const fetchProducts = async () => {
 export const getAceptanceToken = async () => {
   try {
     const response = await axios.get(`${ENVIRONMENT_URL}/transactions/aceptance`)
-    return response.data.token
+    return response.data
   } catch (error) {
     console.error('Error fetching aceptance token:', error)
     throw error
@@ -31,7 +31,7 @@ export const tokenizeCard = async (cardDetails: {
 }) => {
   try {
     const response = await axios.post(`${ENVIRONMENT_URL}/transactions/tokenize`, cardDetails)
-    return response.data.token
+    return response.data
   } catch (error) {
     console.error('Error tokenizing card:', error)
     throw error
@@ -39,10 +39,8 @@ export const tokenizeCard = async (cardDetails: {
 }
 
 export const createTransaction = async (transactionData: {
-  amount: number
   cardToken: string
   customer: string
-  acceptation_token: string
   acceptance_token: string
   installments: number
   products: Array<{ productId: number; quantity: number }>
