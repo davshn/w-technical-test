@@ -1,6 +1,6 @@
 import { render, fireEvent } from '@testing-library/react-native'
 import { CartItem } from './index'
-import type { CartItem as CartItemType } from './CardItemProps'
+import type { CartItem as CartItemType } from './CartItemProps'
 
 describe('CartItem - Integration Tests', () => {
   const mockItem: CartItemType = {

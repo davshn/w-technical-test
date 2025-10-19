@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { View, Text, Image, Button, StepperInput } from '../../atom'
-import type { CartItemMolProps } from './CardItemProps'
+import type { CartItemMolProps } from './CartItemProps'
 import { formatPrice } from '../../../utils/utils'
 import { FontAwesome } from "@react-native-vector-icons/fontawesome"
 
@@ -85,13 +85,13 @@ export const CartItem: React.FC<CartItemMolProps> = ({
             </Text>
 
             <Text
-              size="sm"
+              size="xs"
               weight="bold"
               color="primary"
               responsive={responsive}
               testID={`${testID}-subtotal`}
             >
-              {' Subtotal: ' + formatPrice(subtotal)}
+              {' Total: ' + formatPrice(subtotal)}
             </Text>
           </View>
           <View style={styles.footer}>
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    gap: 8,
   },
   price: {
     marginTop: 2,
