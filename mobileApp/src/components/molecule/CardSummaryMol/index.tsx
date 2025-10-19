@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { View, Text, Divider, Button, Image } from '../../atom'
 import type { CartSummaryMolProps } from './CardSummaryProps'
+import { FontAwesome } from "@react-native-vector-icons/fontawesome"
 
 export const CartSummary: React.FC<CartSummaryMolProps> = ({
   subtotal,
@@ -137,14 +138,8 @@ export const CartSummary: React.FC<CartSummaryMolProps> = ({
         ) : (
           <View style={styles.paymentMethodContainer}>
             <View style={styles.cardLogoContainer}>
-              <Image
-                source={paymentMethod.cardLogo}
-                size="xs"
-                aspectRatio="16:9"
-                resizeMode="contain"
-                responsive={responsive}
-                testID={`${testID}-card-logo`}
-              />
+              { paymentMethod.cardType === 'VISA' && (<FontAwesome name="cc-visa" size={40} color={'#1a1f71'}/>) }
+              { paymentMethod.cardType === 'MASTERCARD' && (<FontAwesome name="cc-mastercard" size={40} color={'#eb001b'}/>) }
               <Text
                 size="sm"
                 color="secondary"

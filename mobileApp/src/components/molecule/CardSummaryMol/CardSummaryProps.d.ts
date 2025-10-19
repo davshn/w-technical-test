@@ -1,8 +1,7 @@
 
 export interface PaymentMethod {
-  cardLogo: { uri: string } | number
   lastFourDigits: string
-  cardType: 'visa' | 'mastercard'
+  cardType: 'VISA' | 'MASTERCARD'
 }
 
 export interface CartSummaryMolProps {
