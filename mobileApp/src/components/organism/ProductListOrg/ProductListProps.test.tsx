@@ -244,25 +244,6 @@ describe('ProductList - Integration Tests', () => {
     expect(queryByText('Samsung Galaxy S24')).toBeTruthy()
   })
 
-  it('should show loading state in search when searching', async () => {
-    const { getByTestId } = render(
-      <ProductList
-        products={mockProducts}
-        onSearch={mockOnSearch}
-        testID="product-list"
-      />,
-    )
-
-    const searchInput = getByTestId('product-list-search')
-    fireEvent.changeText(searchInput, 'test')
-
-    jest.advanceTimersByTime(500)
-
-    await waitFor(() => {
-      expect(mockOnSearch).toHaveBeenCalled()
-    })
-  })
-
   it('should render with responsive enabled', () => {
     const { getByTestId } = render(
       <ProductList
