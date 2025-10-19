@@ -1,12 +1,13 @@
-import { useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native'
 import {
   SafeAreaProvider,
-} from 'react-native-safe-area-context';
-import { createStaticNavigation,   DarkTheme, DefaultTheme, ThemeProvider,} from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+} from 'react-native-safe-area-context'
+import { createStaticNavigation,   DarkTheme, DefaultTheme, ThemeProvider,} from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Provider } from 'react-redux'
-import { MyTabs } from './src/views';
-import { store } from './src/stateManagement/store';
+import { MyTabs } from './src/views'
+import PaymentProcessing from './src/views/PaymentProccesing'
+import { store } from './src/stateManagement/store'
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'MyTabs',
@@ -15,6 +16,7 @@ const RootStack = createNativeStackNavigator({
   },
   screens: {
     MyTabs: MyTabs,
+    PaymentProcessing: PaymentProcessing,
   },
 });
 

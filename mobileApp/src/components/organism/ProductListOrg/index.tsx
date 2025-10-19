@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react'
 import { FlatList, StyleSheet, ListRenderItem } from 'react-native'
 
-import { SafeArea, View, Text} from '../../atom'
+import { View, Text} from '../../atom'
 import { SearchBar } from '../../molecule/SearchBarMol'
 import { ProductCard } from '../../molecule/ProductCardMol'
 import { ProductCardSkeleton } from '../../molecule/ProductCardSkeletonMol'
 import type { Product } from '../../molecule/ProductCardMol/ProductCardProps'
 import type { ProductListProps } from './ProductListProps'
+
+const ItemSeparator = () => <View style={styles.separator} />
 
 export const ProductList: React.FC<ProductListProps> = ({
   products = [],
@@ -14,7 +16,6 @@ export const ProductList: React.FC<ProductListProps> = ({
   onSearch,
   onRefresh,
   onProductPress,
-  onAddToCart,
   skeletonCount = 6,
   emptyMessage = 'No se encontraron productos',
   searchPlaceholder = 'Buscar productos electrónicos...',
@@ -75,7 +76,7 @@ export const ProductList: React.FC<ProductListProps> = ({
         style={styles.title}
         responsive={responsive}
       >
-        Productos
+        Productos Electrónicos
       </Text>
 
       <SearchBar
@@ -114,7 +115,6 @@ export const ProductList: React.FC<ProductListProps> = ({
         style={styles.emptyContainer}
         justifyContent="center"
         alignItems="center"
-        variant='card'
       >
         <Text
           size="xl"
@@ -145,21 +145,17 @@ export const ProductList: React.FC<ProductListProps> = ({
       <ProductCard
         product={item}
         onPress={onProductPress}
-        onAddToCart={onAddToCart}
         responsive={responsive}
         testID={`${testID}-product-${index}`}
       />
     </View>
   )
-
-  const ItemSeparator = () => <View style={styles.separator} />
-
   return (
     <View
       flex={1}
       style={styles.container}
       testID={testID}
-      variant='outlined'
+      variant={'outlined'}
     >
       {renderHeader()}
 
@@ -189,25 +185,23 @@ export const ProductList: React.FC<ProductListProps> = ({
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 16,
-  },
   container: {
     paddingTop: 48,
     paddingHorizontal: 16,
     paddingBottom: 16,
   },
+  headerContainer: {
+    marginBottom: 16,
+    gap: 16,
+  },
   title: {
     marginBottom: 8,
   },
   skeletonsContainer: {
-    paddingHorizontal: 16,
     gap: 16,
+    paddingBottom: 24,
   },
   listContent: {
-    paddingHorizontal: 16,
     paddingBottom: 24,
     flexGrow: 1,
   },

@@ -6,7 +6,6 @@ export interface ProductListProps {
   onSearch?: (query: string) => void | Promise<void>
   onRefresh?: () => void | Promise<void>
   onProductPress?: (product: Product) => void
-  onAddToCart?: (product: Product) => void
   skeletonCount?: number
   emptyMessage?: string
   searchPlaceholder?: string

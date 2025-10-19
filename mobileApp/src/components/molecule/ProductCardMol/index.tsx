@@ -4,16 +4,15 @@ import type { ProductCardProps } from './ProductCardProps'
 import { formatPrice } from '../../../utils/utils';
 
 export const ProductCard: React.FC<ProductCardProps> = ({
-  product,
+product,
   onPress,
-  onAddToCart,
   imageAspectRatio = '4:3',
   showStock = true,
   compact = false,
   responsive = false,
   testID,
 }) => {
-  const { id, name, uri, description, quantity, value } = product
+  const { id, name, uri, quantity, value } = product
 
   const getStockBadgeVariant = (): 'success' | 'warning' | 'error' => {
     if (quantity > 10) return 'success'
@@ -23,8 +22,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const getStockLabel = (): string => {
     if (quantity === 0) return 'Agotado'
-    if (quantity <= 5) return `Solo ${quantity} disponibles`
-    return `${quantity} disponibles`
+    if (quantity <= 5) return `Solo ${quantity}`
+    return `${quantity} disp.`
   }
 
   return (
@@ -35,6 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       style={styles.container}
       testID={testID}
     >
+
       <View style={styles.imageContainer}>
         <Image
           source={{ uri }}
@@ -52,7 +52,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <Badge
               label={getStockLabel()}
               variant={getStockBadgeVariant()}
-              size="sm"
+              size="xs"
               shape="pill"
               responsive={responsive}
             />
@@ -61,6 +61,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </View>
 
       <View style={styles.infoContainer}>
+
         <Text
           size={compact ? 'base' : 'lg'}
           weight="semibold"
@@ -73,18 +74,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </Text>
 
         <Text
-          size="sm"
-          color="secondary"
-          numberOfLines={compact ? 2 : 3}
-          style={styles.description}
-          responsive={responsive}
-          testID={testID ? `${testID}-description` : undefined}
-        >
-          {description}
-        </Text>
-
-        <Text
-          size={compact ? 'xl' : '2xl'}
+          size={compact ? 'lg' : 'xl'}
           weight="bold"
           color="primary"
           style={styles.price}
@@ -94,34 +84,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {formatPrice(value)}
         </Text>
 
-        <View
-          flexDirection="row"
-          justifyContent="space-between"
-          alignItems="center"
-          style={styles.actionsContainer}
-        >
-          <Button
-            variant="outline"
-            size={compact ? 'sm' : 'base'}
-            title="Ver detalle"
-            onPress={() => onPress?.(product)}
-            disabled={quantity === 0}
-            responsive={responsive}
-            style={styles.detailButton}
-            testID={testID ? `${testID}-detail-btn` : undefined}
-          />
-
-          <Button
-            variant="primary"
-            size={compact ? 'sm' : 'base'}
-            title="Agregar"
-            onPress={() => onAddToCart?.(product)}
-            disabled={quantity === 0}
-            responsive={responsive}
-            style={styles.addButton}
-            testID={testID ? `${testID}-add-btn` : undefined}
-          />
-        </View>
+        <Button
+          variant="primary"
+          size={compact ? 'sm' : 'base'}
+          title="Ver detalle"
+          onPress={() => onPress?.(product)}
+          disabled={false}
+          responsive={responsive}
+          style={styles.detailButton}
+          testID={testID ? `${testID}-detail-btn` : undefined}
+        />
       </View>
     </View>
   )
@@ -144,20 +116,10 @@ const styles = StyleSheet.create({
   infoContainer: {
     gap: 8,
   },
-  description: {
+  price: {
     marginTop: 4,
   },
-  price: {
-    marginTop: 8,
-  },
-  actionsContainer: {
-    marginTop: 12,
-    gap: 8,
-  },
   detailButton: {
-    flex: 1,
-  },
-  addButton: {
-    flex: 1,
+    marginTop: 8,
   },
 })

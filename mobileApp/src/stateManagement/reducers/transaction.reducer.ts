@@ -53,4 +53,5 @@ const transactionSlice = createSlice({
 })
 
 export const { addCardToken, addCustomer, addAcceptanceToken, addInstallments, clearTransactions, addBrand, addLastFour, addTransactionId } = transactionSlice.actions
+
 export default transactionSlice.reducer

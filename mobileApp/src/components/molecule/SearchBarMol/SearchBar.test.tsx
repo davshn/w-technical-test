@@ -27,20 +27,20 @@ describe('SearchBar - Integration Tests', () => {
     jest.useRealTimers()
   })
 
-  it('debe renderizar correctamente', () => {
+  it('should render correctly', () => {
     const { getByPlaceholderText } = render(
       <SearchBar
         value=""
         onChangeText={mockOnChangeText}
-        placeholder="Buscar productos..."
+        placeholder="Search products..."
         testID="search-bar"
       />,
     )
 
-    expect(getByPlaceholderText('Buscar productos...')).toBeTruthy()
+    expect(getByPlaceholderText('Search products...')).toBeTruthy()
   })
 
-  it('debe mostrar el valor actual', () => {
+  it('should display the current value', () => {
     const { getByDisplayValue } = render(
       <SearchBar
         value="laptop"
@@ -52,7 +52,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(getByDisplayValue('laptop')).toBeTruthy()
   })
 
-  it('debe llamar onChangeText cuando el usuario escribe', () => {
+  it('should call onChangeText when user types', () => {
     const { getByTestId } = render(
       <SearchBar
         value=""
@@ -67,7 +67,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(mockOnChangeText).toHaveBeenCalledWith('gaming')
   })
 
-  it('debe ejecutar búsqueda con debounce automático', async () => {
+  it('should execute search with automatic debounce', async () => {
     const { getByTestId } = render(
       <SearchBar
         value=""
@@ -90,7 +90,7 @@ describe('SearchBar - Integration Tests', () => {
     })
   })
 
-  it('debe mostrar el input correctamente cuando hay texto', () => {
+  it('should display the input correctly when there is text', () => {
     const { getByTestId } = render(
       <SearchBar
         value="laptop"
@@ -102,7 +102,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(getByTestId('search-bar')).toBeTruthy()
   })
 
-  it('debe limpiar el texto cuando se presiona el botón clear', () => {
+  it('should clear text when clear button is pressed', () => {
     const { getByTestId } = render(
       <SearchBar
         value="laptop"
@@ -119,7 +119,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(mockOnClear).toHaveBeenCalled()
   })
 
-  it('debe mostrar el componente cuando loading es true', () => {
+  it('should display the component when loading is true', () => {
     const { getByTestId } = render(
       <SearchBar
         value="laptop"
@@ -132,7 +132,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(getByTestId('search-bar')).toBeTruthy()
   })
 
-  it('debe ejecutar búsqueda al presionar Enter', () => {
+  it('should execute search when pressing Enter', () => {
     const { getByTestId } = render(
       <SearchBar
         value="laptop"
@@ -148,7 +148,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(mockOnSearch).toHaveBeenCalledWith('laptop')
   })
 
-  it('debe mostrar botón de búsqueda cuando showSearchButton es true', () => {
+  it('should show search button when showSearchButton is true', () => {
     const { getByTestId } = render(
       <SearchBar
         value="laptop"
@@ -163,7 +163,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(searchButton).toBeTruthy()
   })
 
-  it('debe llamar onSearch cuando se presiona el botón de búsqueda', () => {
+  it('should call onSearch when search button is pressed', () => {
     const { getByTestId } = render(
       <SearchBar
         value="laptop"
@@ -180,7 +180,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(mockOnSearch).toHaveBeenCalledWith('laptop')
   })
 
-  it('debe limpiar después de buscar cuando clearOnSearch es true', () => {
+  it('should clear after searching when clearOnSearch is true', () => {
     const { getByTestId } = render(
       <SearchBar
         value="laptop"
@@ -198,7 +198,7 @@ describe('SearchBar - Integration Tests', () => {
     expect(mockOnChangeText).toHaveBeenCalledWith('')
   })
 
-  it('debe manejar input vacío correctamente', () => {
+  it('should handle empty input correctly', () => {
     const { getByTestId } = render(
       <SearchBar
         value=""
@@ -214,16 +214,16 @@ describe('SearchBar - Integration Tests', () => {
     expect(mockOnChangeText).toHaveBeenCalledWith('laptop')
   })
 
-  it('debe mostrar el placeholder correcto', () => {
+  it('should display the correct placeholder', () => {
     const { getByPlaceholderText } = render(
       <SearchBar
         value=""
         onChangeText={mockOnChangeText}
-        placeholder="Buscar en el catálogo"
+        placeholder="Search in catalog"
         testID="search-bar"
       />,
     )
 
-    expect(getByPlaceholderText('Buscar en el catálogo')).toBeTruthy()
+    expect(getByPlaceholderText('Search in catalog')).toBeTruthy()
   })
 })
