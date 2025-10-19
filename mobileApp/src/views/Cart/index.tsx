@@ -2,32 +2,31 @@ import { StyleSheet } from 'react-native'
 import { useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Cart } from '../../components/organism/CartOrg'
-import { removeFromCart, updateCartItemQuantity } from '../../stateManagement/reducers/cart.reducer'
+import { ToastBase, ActivityIndicator } from '../../components/atom'
 import type { RootState } from '../../stateManagement/store'
-import { ToastBase } from '../../components/atom'
-import type { PaymentMethod } from '../../components/organism/CartOrg/CartProps'
-import { getAceptanceToken } from '../../services/services'
-import { addAcceptanceToken, addBrand, addLastFour, addCardToken } from '../../stateManagement/reducers/transaction.reducer'
-import { addCustomer } from '../../stateManagement/reducers/transaction.reducer'
 import type { CardFormData } from '../../components/molecule/AddCardModalMol/AddCardModalProps'
-import { tokenizeCard } from '../../services/services'
+import type { PaymentMethod } from '../../components/organism/CartOrg/CartProps'
+import { getAceptanceToken, tokenizeCard, createTransaction } from '../../services/services'
+import { addAcceptanceToken,addCustomer, addBrand, addLastFour, addCardToken, addInstallments, addTransactionId } from '../../stateManagement/reducers/transaction.reducer'
+import { removeFromCart, updateCartItemQuantity } from '../../stateManagement/reducers/cart.reducer'
+import { useNavigation } from '@react-navigation/native'
 
 export default function CartScreen() {
   const dispatch = useDispatch()
+  const navigation = useNavigation()
 
   const cartItems = useSelector((state: RootState) => state.cart.products)
   const products = useSelector((state: RootState) => state.products.products)
+  const transaction = useSelector((state: RootState) => { return state.transaction })
+  console.warn('🚀 ~ CartScreen ~ transaction:', transaction)
 
   const [toastVisible, setToastVisible] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [toastType, setToastType] = useState<'success' | 'error'>('success')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | undefined>(undefined)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>({ lastFourDigits: transaction.last_four, cardType: transaction.brand as 'VISA' | 'MASTERCARD' })
   const [termsUrl, setTermsUrl] = useState<string>('')
   const [showPaymentModal, setShowPaymentModal] = useState(false)
-
-  const customerEmail = useSelector((state: any) => state.transaction)
-  console.warn('🚀 ~ Cart ~ customerEmail:', customerEmail)
-
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const availableProducts = useMemo(() => {
     return products.map(p => ({
@@ -102,6 +101,10 @@ export default function CartScreen() {
         dispatch(addBrand(tokenResponse.data.brand))
         dispatch(addLastFour(tokenResponse.data.last_four))
         setShowPaymentModal(false)
+        setPaymentMethod({
+          cardType: tokenResponse.data.brand,
+          lastFourDigits: tokenResponse.data.last_four,
+        })
         setToastMessage('Método de pago agregado exitosamente')
         setToastType('success')
         setToastVisible(true)
@@ -114,9 +117,12 @@ export default function CartScreen() {
     }
   }
 
+  const handleInstallmentsChange = (value: number) => {
+    dispatch(addInstallments(value))
+  }
 
-  const handleCheckout = () => {
-    if (!paymentMethod) {
+  const handleCheckout = async () => {
+    if (!paymentMethod.cardType) {
       setToastMessage('Por favor agrega un método de pago')
       setToastType('error')
       setToastVisible(true)
@@ -131,20 +137,29 @@ export default function CartScreen() {
     }
 
     try {
-      console.log('Processing checkout...')
-      console.log('Items:', cartItems)
-      console.log('Payment method:', paymentMethod)
-      console.log('Total:', total)
-
-      // Aquí iría la lógica de checkout real
+      const transactionData = {
+        "cardToken": transaction.cardToken.replace(/'/g, '"'),
+        "customer": transaction.customer.replace(/'/g, '"'),
+        "acceptance_token": transaction.acceptance_token.replace(/'/g, '"'),
+        "installments": transaction.installments,
+        "products": cartItems.map(item => ({
+          "productId": item.id,
+          "quantity": item.quantity
+        }))
+      }
+      setIsSubmitting(true)
+      const response = await createTransaction(transactionData)
+      handleAddPaymentMethod()
+      dispatch(addTransactionId(response.reference))
+      setIsSubmitting(false)
       setToastMessage('Compra procesada exitosamente')
       setToastType('success')
       setToastVisible(true)
-
-      // Limpiar carrito después del checkout
-      // dispatch(clearCart())
+      navigation.navigate('PaymentProcessing' as never)
     } catch (error) {
-      setToastMessage('Error al procesar la compra')
+      setIsSubmitting(false)
+      handleAddPaymentMethod()
+      setToastMessage('Error al procesar la compra, intentalo de nuevo')
       setToastType('error')
       setToastVisible(true)
       console.error('Error processing checkout:', error)
@@ -168,6 +183,8 @@ export default function CartScreen() {
         handleCardAdded={handleCardAdded}
         setShowPaymentModal={setShowPaymentModal}
         showPaymentModal={showPaymentModal}
+        installments={transaction.installments}
+        setInstallments={handleInstallmentsChange}
       />
       <ToastBase
         message={toastMessage}
@@ -177,6 +194,15 @@ export default function CartScreen() {
         position="top"
         onHide={() => setToastVisible(false)}
       />
+      {isSubmitting && (
+        <ActivityIndicator
+          overlay
+          size="lg"
+          variant="primary"
+          overlayColor="rgba(0, 0, 0, 0.7)"
+          testID={`checkout-loading`}
+        />
+      )}
     </>
   )
 }
