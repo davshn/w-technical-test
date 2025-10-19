@@ -8,6 +8,7 @@ interface TransactionState {
   installments: number;
   brand: string;
   last_four: string;
+  id: string;
 }
 
 const initialState: TransactionState = {
@@ -17,6 +18,7 @@ const initialState: TransactionState = {
   installments: 1,
   brand: "",
   last_four: "",
+  id: "",
 }
 
 const transactionSlice = createSlice({
@@ -41,11 +43,15 @@ const transactionSlice = createSlice({
     addLastFour: (state, action: PayloadAction<string>) => {
       state.last_four = action.payload
     },
+    addTransactionId: (state, action: PayloadAction<string>) => {
+      state.id = action.payload
+    },
     clearTransactions: (state) => {
       state = { ...initialState }
     },
   },
 })
 
-export const { addCardToken, addCustomer, addAcceptanceToken, addInstallments, clearTransactions, addBrand, addLastFour } = transactionSlice.actions
+export const { addCardToken, addCustomer, addAcceptanceToken, addInstallments, clearTransactions, addBrand, addLastFour, addTransactionId } = transactionSlice.actions
+
 export default transactionSlice.reducer
