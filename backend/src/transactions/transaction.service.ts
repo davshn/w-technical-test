@@ -123,17 +123,15 @@ export class TransactionsService {
       transaction!.get({ plain: true }).paymentId,
     );
     if (data.status !== 'APPROVED') {
-      throw new HttpException(`${data.status}`, HttpStatus.OK);
+      await this.transactionModel.update(
+        { status: data.status },
+        { where: { id } },
+      );
+      return await this.transactionModel.findByPk(id);
     }
 
     for (const item of transaction!.get({ plain: true }).products) {
       const newQuantity = item.quantity - item.TransactionProduct.quantity;
-      if (newQuantity < 0) {
-        throw new HttpException(
-          `No hay suficientes existencias de ${item.id}`,
-          HttpStatus.OK,
-        );
-      }
       await this.productModel.update(
         { quantity: newQuantity },
         { where: { id: item.id } },
