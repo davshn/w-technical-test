@@ -116,7 +116,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <Image
                   source={{ uri }}
                   size="full"
-                  customHeight={250}
+                  customHeight={200}
                   aspectRatio="16:9"
                   borderRadius={12}
                   resizeMode="cover"
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: 12,
     paddingTop: 12,
-    paddingBottom: 8,
+    paddingBottom: 4,
   },
   scrollView: {
     flex: 1,
@@ -312,12 +312,12 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingBottom: 8,
     flexGrow: 1,
   },
   imageContainer: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   stockBadge: {
     position: 'absolute',
@@ -331,18 +331,17 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   unitPrice: {
-    marginBottom: 8,
+    marginBottom: 2,
   },
   divider: {
     height: 1,
     backgroundColor: '#E5E5E5',
-    marginVertical: 12,
+    marginVertical: 4,
   },
   quantitySection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
   },
   totalPriceContainer: {
     flexDirection: 'row',
