@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Cart } from '../../components/organism/CartOrg'
 import { ToastBase, ActivityIndicator } from '../../components/atom'
@@ -8,7 +8,7 @@ import type { CardFormData } from '../../components/molecule/AddCardModalMol/Add
 import type { PaymentMethod } from '../../components/organism/CartOrg/CartProps'
 import { getAceptanceToken, tokenizeCard, createTransaction } from '../../services/services'
 import { addAcceptanceToken, addCustomer, addBrand, addLastFour, addCardToken, addInstallments, addTransactionId } from '../../stateManagement/reducers/transaction.reducer'
-import { removeFromCart, updateCartItemQuantity } from '../../stateManagement/reducers/cart.reducer'
+import { removeFromCart, updateCartItemQuantity, setCartNotification } from '../../stateManagement/reducers/cart.reducer'
 import { useNavigation } from '@react-navigation/native'
 
 
@@ -16,11 +16,9 @@ export default function CartScreen() {
   const dispatch = useDispatch()
   const navigation = useNavigation()
 
-
   const cartItems = useSelector((state: RootState) => state.cart.products)
   const products = useSelector((state: RootState) => state.products.products)
   const transaction = useSelector((state: RootState) => { return state.transaction })
-
 
   const [toastVisible, setToastVisible] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
@@ -30,6 +28,9 @@ export default function CartScreen() {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  useEffect(() => {
+    dispatch(setCartNotification(false))
+  }, [])
 
   const availableProducts = useMemo(() => {
     return products.map(p => ({
