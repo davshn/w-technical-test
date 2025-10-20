@@ -52,6 +52,7 @@ export default function HomeScreen() {
     setToastMessage('Producto añadido al carrito, revisa el carrito para finalizar tu compra')
     setToastType('success')
     setToastVisible(true)
+    dispatch(setCartNotification(true))
     dispatch(addToCart(product))
     dispatch(setCartNotification(true))
   }
