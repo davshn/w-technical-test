@@ -10,7 +10,6 @@ export interface Product {
 export interface ProductCardProps {
   product: Product
   onPress?: (product: Product) => void
-  onAddToCart?: (product: Product) => void
   imageAspectRatio?: '4:3' | '16:9' | 'square'
   showStock?: boolean
   compact?: boolean

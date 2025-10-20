@@ -3,12 +3,13 @@ import { View, Skeleton } from '../../atom'
 import type { ProductCardSkeletonProps } from './ProductCardSkeletonProps'
 
 export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
-  imageAspectRatio = '4:3',
+    imageAspectRatio = '4:3',
   compact = false,
   responsive = false,
   animated = true,
   testID,
 }) => {
+
   const getImageHeight = (): number => {
     switch (imageAspectRatio) {
       case 'square':
@@ -29,6 +30,7 @@ export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
       style={styles.container}
       testID={testID}
     >
+
       <View style={styles.imageContainer}>
         <Skeleton
           variant="rect"
@@ -40,11 +42,12 @@ export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
           testID={testID ? `${testID}-image` : undefined}
         />
 
+
         <View style={styles.stockBadge}>
           <Skeleton
             variant="rect"
-            width={120}
-            height={18}
+            width={80}
+            height={16}
             borderRadius={9999}
             animated={animated}
             responsive={responsive}
@@ -54,6 +57,7 @@ export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
       </View>
 
       <View style={styles.infoContainer}>
+
         <Skeleton
           variant="text"
           size={compact ? 'base' : 'lg'}
@@ -65,23 +69,10 @@ export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
           testID={testID ? `${testID}-name` : undefined}
         />
 
-        <View style={styles.descriptionContainer}>
-          <Skeleton
-            variant="text"
-            size="sm"
-            lines={compact ? 2 : 3}
-            lineSpacing={4}
-            lastLineWidth="60%"
-            animated={animated}
-            responsive={responsive}
-            testID={testID ? `${testID}-description` : undefined}
-          />
-        </View>
-
         <View style={styles.priceContainer}>
           <Skeleton
             variant="text"
-            size={'xl'}
+            size={compact ? 'lg' : 'xl'}
             width="50%"
             animated={animated}
             responsive={responsive}
@@ -89,30 +80,15 @@ export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
           />
         </View>
 
-        <View
-          flexDirection="row"
-          justifyContent="space-between"
-          alignItems="center"
-          style={styles.actionsContainer}
-        >
+        <View style={styles.buttonContainer}>
           <Skeleton
             variant="rect"
-            width="48%"
+            width="100%"
             height={compact ? 32 : 40}
             borderRadius={8}
             animated={animated}
             responsive={responsive}
             testID={testID ? `${testID}-detail-btn` : undefined}
-          />
-
-          <Skeleton
-            variant="rect"
-            width="48%"
-            height={compact ? 32 : 40}
-            borderRadius={8}
-            animated={animated}
-            responsive={responsive}
-            testID={testID ? `${testID}-add-btn` : undefined}
           />
         </View>
       </View>
@@ -137,14 +113,10 @@ const styles = StyleSheet.create({
   infoContainer: {
     gap: 8,
   },
-  descriptionContainer: {
+  priceContainer: {
     marginTop: 4,
   },
-  priceContainer: {
+  buttonContainer: {
     marginTop: 8,
-  },
-  actionsContainer: {
-    marginTop: 12,
-    gap: 8,
   },
 })

@@ -1723,11 +1723,6 @@
   resolved "https://registry.yarnpkg.com/@react-native/normalize-colors/-/normalize-colors-0.82.0.tgz#33f756b5027a9816477244adea8e268641ac6ddb"
   integrity sha512-oinsK6TYEz5RnFTSk9P+hJ/N/E0pOG76O0euU0Gf3BlXArDpS8m3vrGcTjqeQvajRIaYVHIRAY9hCO6q+exyLg==
 
-"@react-native/typescript-config@^0.82.0":
-  version "0.82.0"
-  resolved "https://registry.yarnpkg.com/@react-native/typescript-config/-/typescript-config-0.82.0.tgz#9cb60978d3af5b235a111d5cb659e72bc8ffde66"
-  integrity sha512-L/pZLFh52NUZ7sPAs8IAkQXz/fepuduceqkog6j9YYvbSqS9SQbLSCV9ss/v3XZHaTtRMQD1eq+8WJA0HzqhzA==
-
 "@react-native/virtualized-lists@0.82.0":
   version "0.82.0"
   resolved "https://registry.yarnpkg.com/@react-native/virtualized-lists/-/virtualized-lists-0.82.0.tgz#5af0ee37cee62a3100fd42ae0c3ea029c8b50ec5"
@@ -2584,6 +2579,13 @@ caniuse-lite@^1.0.30001746:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001751.tgz#dacd5d9f4baeea841641640139d2b2a4df4226ad"
   integrity sha512-A0QJhug0Ly64Ii3eIqHu5X51ebln3k4yTUkY1j8drqpWHVreg/VLijN48cZ1bYPiqOQuqpkIKnzr/Ul8V+p6Cw==
 
+card-validator@^10.0.3:
+  version "10.0.3"
+  resolved "https://registry.yarnpkg.com/card-validator/-/card-validator-10.0.3.tgz#61640cfa1d3b5f387247b696ef26693558925f94"
+  integrity sha512-xOEDsK3hojV0OIpmrR64eZGpngnOqRDEP20O+WSRtvjLSW6nyekW4i2N9SzYg679uFO3RyHcFHxb+mml5tXc4A==
+  dependencies:
+    credit-card-type "^10.0.2"
+
 chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
@@ -2834,6 +2836,11 @@ create-jest@^29.7.0:
     jest-config "^29.7.0"
     jest-util "^29.7.0"
     prompts "^2.0.1"
+
+credit-card-type@^10.0.2:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/credit-card-type/-/credit-card-type-10.1.0.tgz#a0792525fdce37259c1e9a7795eb91ed3726966d"
+  integrity sha512-yd9ebGqWQ9zDvxrvCOkX80GiTvVJ28940uIMqRA58Cu3ReiPkOS4p45d9Y2cmJZtZgp90WdwLSiUtI8lHDgE2g==
 
 cross-spawn@^7.0.2, cross-spawn@^7.0.3, cross-spawn@^7.0.6:
   version "7.0.6"
@@ -3920,7 +3927,7 @@ internal-slot@^1.1.0:
     hasown "^2.0.2"
     side-channel "^1.1.0"
 
-invariant@^2.2.4:
+invariant@2.2.4, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
@@ -5631,6 +5638,14 @@ react-native-vector-icons@^10.3.0:
   dependencies:
     prop-types "^15.7.2"
     yargs "^16.1.1"
+
+react-native-webview@^13.16.0:
+  version "13.16.0"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-13.16.0.tgz#c995148f944a7eaf12389f0e6d5c6f5e6a775686"
+  integrity sha512-Nh13xKZWW35C0dbOskD7OX01nQQavOzHbCw9XoZmar4eXCo7AvrYJ0jlUfRVVIJzqINxHlpECYLdmAdFsl9xDA==
+  dependencies:
+    escape-string-regexp "^4.0.0"
+    invariant "2.2.4"
 
 react-native@0.82.0:
   version "0.82.0"

@@ -1,4 +1,4 @@
-import { View, Image, Text, Button, IconButton, Badge } from '../../atom'
+import { View, Image, Text, Button, IconButton, Badge, StepperInput } from '../../atom'
 import type { ProductDetailModalProps } from './ProductDetailModalProps'
 import { formatPrice } from '../../../utils/utils';
 import {
@@ -8,10 +8,12 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native'
+import { useState, useEffect } from 'react'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
+
   visible,
   product,
   onClose,
@@ -19,24 +21,35 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   responsive = true,
   testID = 'product-detail-modal',
 }) => {
+  const [quantity, setQuantity] = useState(1)
+
+  useEffect(() => {
+    if (product) {
+      setQuantity(1)
+    }
+  }, [product])
+
   if (!product) return null
 
-  const { id, name, uri, description, quantity, value } = product
+  const { id, name, uri, description, quantity: availableQuantity, value } = product
+
+   const totalPrice = value * quantity
 
   const getStockBadgeVariant = (): 'success' | 'warning' | 'error' => {
-    if (quantity > 10) return 'success'
-    if (quantity > 0) return 'warning'
+    if (availableQuantity > 10) return 'success'
+    if (availableQuantity > 0) return 'warning'
     return 'error'
   }
 
   const getStockLabel = (): string => {
-    if (quantity === 0) return 'Agotado'
-    if (quantity <= 5) return `Solo ${quantity} disponibles`
-    return `${quantity} en stock`
+    if (availableQuantity === 0) return 'Agotado'
+    if (availableQuantity <= 5) return `Solo ${availableQuantity} disponibles`
+    return `${availableQuantity} en stock`
   }
 
   const handleAddToCart = () => {
-    onAddToCart?.(product)
+    const productWithQuantity = { ...product, quantity }
+    onAddToCart?.(productWithQuantity)
     onClose?.()
   }
 
@@ -53,11 +66,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       statusBarTranslucent
       testID={testID}
     >
+
       <Pressable
         style={styles.backdrop}
         onPress={handleBackdropPress}
         testID={`${testID}-backdrop`}
       >
+
         <Pressable
           style={styles.modalContainer}
           onPress={(e) => e.stopPropagation()}
@@ -69,6 +84,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             style={styles.modalContent}
             testID={`${testID}-content`}
           >
+
             <View style={styles.header}>
               <View flex={1} />
               <IconButton
@@ -95,11 +111,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
+
               <View style={styles.imageContainer}>
                 <Image
                   source={{ uri }}
                   size="full"
-                  customHeight={250}
+                  customHeight={200}
                   aspectRatio="16:9"
                   borderRadius={12}
                   resizeMode="cover"
@@ -133,15 +150,60 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </Text>
 
                 <Text
-                  size="2xl"
-                  weight="bold"
-                  color="success"
-                  style={styles.price}
+                  size="xl"
+                  weight="semibold"
+                  color="secondary"
+                  style={styles.unitPrice}
                   responsive={responsive}
-                  testID={`${testID}-price`}
+                  testID={`${testID}-unit-price`}
                 >
-                  {formatPrice(value)}
+                  {formatPrice(value)} c/u
                 </Text>
+
+                <View style={styles.divider} />
+
+                <View style={styles.quantitySection}>
+                  <Text
+                    size="base"
+                    weight="semibold"
+                    color="primary"
+                    responsive={responsive}
+                  >
+                    Cantidad
+                  </Text>
+
+                  <StepperInput
+                    value={quantity}
+                    onChange={setQuantity}
+                    min={1}
+                    max={availableQuantity}
+                    size="base"
+                    variant="outlined"
+                    disabled={availableQuantity === 0}
+                    responsive={responsive}
+                    testID={`${testID}-stepper`}
+                  />
+                </View>
+
+                <View style={styles.totalPriceContainer}>
+                  <Text
+                    size="base"
+                    weight="medium"
+                    color="secondary"
+                    responsive={responsive}
+                  >
+                    Total
+                  </Text>
+                  <Text
+                    size="2xl"
+                    weight="bold"
+                    color="success"
+                    responsive={responsive}
+                    testID={`${testID}-total-price`}
+                  >
+                    {formatPrice(totalPrice)}
+                  </Text>
+                </View>
 
                 <View style={styles.divider} />
 
@@ -168,23 +230,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </View>
 
                 <View style={styles.additionalInfo}>
-                  <View style={styles.infoRow}>
-                    <Text
-                      size="base"
-                      weight="semibold"
-                      color="primary"
-                      responsive={responsive}
-                    >
-                      ID del producto:
-                    </Text>
-                    <Text
-                      size="base"
-                      color="secondary"
-                      responsive={responsive}
-                    >
-                      #{id}
-                    </Text>
-                  </View>
 
                   <View style={styles.infoRow}>
                     <Text
@@ -197,11 +242,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     </Text>
                     <Text
                       size="base"
-                      color={quantity > 0 ? 'success' : 'error'}
+                      color={availableQuantity > 0 ? 'success' : 'error'}
                       weight="medium"
                       responsive={responsive}
                     >
-                      {quantity > 0 ? 'En stock' : 'Agotado'}
+                      {availableQuantity > 0 ? 'En stock' : 'Agotado'}
                     </Text>
                   </View>
                 </View>
@@ -222,9 +267,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <Button
                 variant="primary"
                 size="lg"
-                title="Agregar al carrito"
+                title={`Agregar (${quantity})`}
                 onPress={handleAddToCart}
-                disabled={quantity === 0}
+                disabled={availableQuantity === 0}
                 style={styles.addButton}
                 responsive={responsive}
                 testID={`${testID}-add-cart-btn`}
@@ -259,20 +304,20 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: 12,
     paddingTop: 12,
-    paddingBottom: 8,
+    paddingBottom: 4,
   },
   scrollView: {
     flex: 1,
-    maxHeight: SCREEN_HEIGHT * 0.85 - 140, 
+    maxHeight: SCREEN_HEIGHT * 0.85 - 140,
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingBottom: 8,
     flexGrow: 1,
   },
   imageContainer: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   stockBadge: {
     position: 'absolute',
@@ -285,13 +330,28 @@ const styles = StyleSheet.create({
   productName: {
     marginBottom: 4,
   },
-  price: {
-    marginBottom: 8,
+  unitPrice: {
+    marginBottom: 2,
   },
   divider: {
     height: 1,
     backgroundColor: '#E5E5E5',
-    marginVertical: 12,
+    marginVertical: 4,
+  },
+  quantitySection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  totalPriceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    backgroundColor: '#F0FFF4',
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginTop: 4,
   },
   detailsSection: {
     gap: 8,
