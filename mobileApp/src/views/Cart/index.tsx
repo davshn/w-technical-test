@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Cart } from '../../components/organism/CartOrg'
 import { ToastBase, ActivityIndicator } from '../../components/atom'
@@ -10,7 +10,7 @@ import { getAceptanceToken, tokenizeCard, createTransaction } from '../../servic
 import { addAcceptanceToken, addCustomer, addBrand, addLastFour, addCardToken, addInstallments, addTransactionId } from '../../stateManagement/reducers/transaction.reducer'
 import { removeFromCart, updateCartItemQuantity, setCartNotification } from '../../stateManagement/reducers/cart.reducer'
 import { useNavigation } from '@react-navigation/native'
-
+import { useFocusEffect } from '@react-navigation/native'
 
 export default function CartScreen() {
   const dispatch = useDispatch()
@@ -28,9 +28,9 @@ export default function CartScreen() {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  useEffect(() => {
-    dispatch(setCartNotification(false))
-  }, [])
+  useFocusEffect(() => {
+      dispatch(setCartNotification(false))
+  })
 
   const availableProducts = useMemo(() => {
     return products.map(p => ({
