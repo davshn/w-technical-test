@@ -1,97 +1,206 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 🛍️ Virtual Store App (React Native CLI)
 
-# Getting Started
+A modern **mobile e-commerce app** built with **React Native CLI**, **Redux Toolkit**, and **Jest**.
+It lets customers browse products, view details, add to cart, add a credit card (Visa/Mastercard), choose installments, and complete a purchase via a payment gateway.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## ✨ Highlights
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- 🏠 Home with **product search** and quick detail access.
+- 🧱 **Atomic Design** architecture (atoms → molecules → organisms → views).
+- 🛒 Cart with **quantity edit**, **remove**, **per-item subtotal**, and **grand total**.
+- 🔔 **Tab bar badge** when items are added to the cart.
+- 💳 Add credit card with **card-validator** (Luhn check + brand detection).
+- 📄 Fetch **Terms & Conditions PDF** via the **Acceptance Token** endpoint before card submission.
+- 🧾 Installments selector (cuotas) integrated into checkout payload.
+- ⏳ **Payment Processing** screen with live validation (approved/declined).
+- 🌗 **Dark mode** that follows the user’s system preference.
+- ✅ **80%+ test coverage** with Jest & React Testing Library.
+- 📦 Signed **Android APK** included for reviewers.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
-npm start
+## 🖼️ Screenshots
 
-# OR using Yarn
-yarn start
+**Home**
+![Home](docs/captura6.png)
+
+**Product Detail Modal**
+![Product Detail](docs/captura3.png)
+
+**Cart (empty)**
+![Cart Empty](docs/captura2.png)
+
+**Cart (with items)**
+![Cart Filled](docs/captura5.png)
+
+**Add Card Modal**
+![Add Card](docs/captura8.png)
+
+**Payment Processing**
+![Processing](docs/captura1.png)
+
+**Payment Approved**
+![Success](docs/captura7.png)
+
+**Payment Declined**
+![Declined](docs/captura4.png)
+
+---
+
+## 🧠 Architecture & Tech
+
+| Layer | Details |
+|---|---|
+| Framework | React Native CLI |
+| State | Redux Toolkit (slices for `products`, `cart`, `transaction`) |
+| Tests | Jest + React Testing Library (80%+ coverage) |
+| HTTP | Axios services (`products`, `transactions`) |
+| Payments | Acceptance token, card tokenization, create transaction, validate transaction |
+| Validation | `card-validator` + `isCreditCard` utility |
+| Design | **Atomic Design** using **only base React Native components** from atoms upward |
+| Theming | Light/Dark mode via OS preference |
+
+---
+
+## 🧩 Core Flows
+
+### 1) Browse & Search
+- Fetch and display products on the **Home** screen.
+- Search bar filters products on the fly.
+
+### 2) Product Detail & Add to Cart
+- Open **Product Detail Modal** → choose quantity with **StepperInput**.
+- Live total updates (`unit price × quantity`).
+- Adding items shows a **notification badge** in the **cart tab**.
+
+### 3) Cart Management
+- Change quantities, remove items, see **per-item subtotal** and **grand total**.
+- Add or **change credit card**; card brand icon (Visa/Mastercard) displays after validation.
+- Select **installments** before checkout.
+
+### 4) Checkout & Payment
+- On checkout, the app navigates to **Payment Processing** while validating with the payment platform.
+- **Approved**: user sees success message with shipping info → cart is cleared → navigate to Home.
+- **Declined**: user sees an error and can retry with a different card.
+
+---
+
+## 🗂 Project Structure (Atomic Design)
+
+> The codebase follows Atomic Design and uses only React Native base components for atoms upward.
+> Structure (as in the attached screenshot):
+
+```
+src
+├─ components
+│  ├─ atom
+│  │  ├─ ActivityIndicatorAtom
+│  │  ├─ BadgeAtom
+│  │  ├─ ButtonAtom
+│  │  ├─ CardAtom
+│  │  ├─ CheckboxAtom
+│  │  ├─ DividerAtom
+│  │  ├─ ImageAtom
+│  │  ├─ SafeAreaAtom
+│  │  ├─ SkeletonAtom
+│  │  ├─ SpacerAtom
+│  │  ├─ StepperInputAtom
+│  │  ├─ TagAtom
+│  │  ├─ TextAtom
+│  │  ├─ TextInputAtom
+│  │  ├─ ToastAtom
+│  │  ├─ ViewAtom
+│  │  ├─ AtomBaseProps.d.ts
+│  │  └─ index.ts
+│  ├─ molecule
+│  │  ├─ AddCardModalMol
+│  │  ├─ CardSummaryMol
+│  │  ├─ CartItemMol
+│  │  ├─ ProducDetailModalMol
+│  │  ├─ ProductCardMol
+│  │  ├─ ProductCardSkeletonMol
+│  │  └─ SearchBarMol
+│  └─ organism
+│     ├─ CartOrg
+│     └─ ProductListOrg
+├─ constants
+│  └─ theme.ts
+├─ hooks
+│  └─ services.ts
+├─ services
+│  └─ services.ts
+├─ stateManagement
+│  ├─ reducers
+│  │  ├─ cart.reducer.ts
+│  │  ├─ products.reducer.ts
+│  │  └─ transaction.reducer.ts
+│  └─ store.ts
+├─ utils
+├─ views
+│  ├─ Cart
+│  │  ├─ Cart.test.tsx
+│  │  └─ index.tsx
+│  ├─ Home
+│  │  ├─ Home.test.tsx
+│  │  └─ index.tsx
+│  └─ PaymentProcesing
+│     └─ index.tsx
+├─ App.tsx
+└─ index.js
 ```
 
-## Step 2: Build and run your app
+> *Note:* Folder names like `ProducDetailModalMol` and `PaymentProcesing` are shown **exactly as in the project tree**.
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+---
 
-### Android
+## ⚙️ Setup & Run
 
-```sh
-# Using npm
-npm run android
+1. **Install dependencies**
+```bash
+yarn install
+# or
+npm install
+```
 
-# OR using Yarn
+2. **Environment variables**
+```bash
+ENVIRONMENT_URL=https://your-backend.example.com
+```
+
+3. **Run on Android**
+```bash
 yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+4. **Run tests**
+```bash
+yarn test
 ```
 
-Then, and every time you update your native dependencies, run:
+---
 
-```sh
-bundle exec pod install
-```
+## 🔌 API Endpoints (expected)
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+- `GET /products` — fetch all products.
+- `GET /transactions/aceptance` — fetch **Acceptance Token** (Terms & Conditions PDF).
+- `POST /transactions/tokenize` — tokenize credit card.
+- `POST /transactions` — create transaction (amount, card token, products, installments).
+- `PUT /transactions/:id` — validate/update transaction status.
 
-```sh
-# Using npm
-npm run ios
+---
 
-# OR using Yarn
-yarn ios
-```
+## 📱 Download
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+**Signed Android APK**: attach the file or link here for reviewers.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+---
 
-## Step 3: Modify your app
+## 📄 License
 
-Now that you have successfully run the app, let's make changes!
+MIT (or your preferred license).
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+If you want, I can also provide a **GitHub-friendly badges section** and a **Contributing guide**.
