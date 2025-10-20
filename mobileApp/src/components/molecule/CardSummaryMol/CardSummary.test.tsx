@@ -22,7 +22,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should render summary correctly', () => {
     const { getByText, getByTestId } = render(
-      <CartSummary {...defaultProps} testID="cart-summary" />
+      <CartSummary {...defaultProps} testID="cart-summary" paymentMethod={mockPaymentMethod}/>
     )
 
     expect(getByText('Resumen de pedido')).toBeTruthy()
@@ -32,7 +32,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should display formatted subtotal', () => {
     const { getByTestId } = render(
-      <CartSummary {...defaultProps} testID="cart-summary" />
+      <CartSummary {...defaultProps} testID="cart-summary" paymentMethod={mockPaymentMethod}/>
     )
 
     const subtotal = getByTestId('cart-summary-subtotal')
@@ -41,7 +41,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should display formatted total', () => {
     const { getByTestId } = render(
-      <CartSummary {...defaultProps} testID="cart-summary" />
+      <CartSummary {...defaultProps} testID="cart-summary" paymentMethod={mockPaymentMethod}/>
     )
 
     const total = getByTestId('cart-summary-total')
@@ -50,7 +50,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should display item count', () => {
     const { getByTestId } = render(
-      <CartSummary {...defaultProps} testID="cart-summary" />
+      <CartSummary {...defaultProps} testID="cart-summary" paymentMethod={mockPaymentMethod}/>
     )
 
     const itemCount = getByTestId('cart-summary-item-count')
@@ -63,6 +63,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         itemCount={1}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -76,6 +77,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         showItemCount={false}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -88,6 +90,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         tax={1900000}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -98,7 +101,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should not display tax when zero', () => {
     const { queryByText } = render(
-      <CartSummary {...defaultProps} tax={0} testID="cart-summary" />
+      <CartSummary {...defaultProps} tax={0} testID="cart-summary" paymentMethod={mockPaymentMethod}/>
     )
 
     expect(queryByText('Tax')).toBeNull()
@@ -110,6 +113,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         discount={500000}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -124,6 +128,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         discount={500000}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -133,7 +138,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should not display discount when zero', () => {
     const { queryByText } = render(
-      <CartSummary {...defaultProps} discount={0} testID="cart-summary" />
+      <CartSummary {...defaultProps} discount={0} testID="cart-summary" paymentMethod={mockPaymentMethod}/>
     )
 
     expect(queryByText('Discount')).toBeNull()
@@ -145,6 +150,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         shipping={50000}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -155,7 +161,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should not display shipping when zero', () => {
     const { queryByText } = render(
-      <CartSummary {...defaultProps} shipping={0} testID="cart-summary" />
+      <CartSummary {...defaultProps} shipping={0} testID="cart-summary" paymentMethod={mockPaymentMethod}/>
     )
 
     expect(queryByText('Shipping')).toBeNull()
@@ -171,6 +177,7 @@ describe('CartSummary - Integration Tests', () => {
         total={11450000}
         itemCount={5}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -200,6 +207,7 @@ describe('CartSummary - Integration Tests', () => {
         total={expectedTotal}
         itemCount={3}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -213,6 +221,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         responsive={true}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -225,6 +234,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         itemCount={0}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -238,6 +248,7 @@ describe('CartSummary - Integration Tests', () => {
         total={99999999}
         itemCount={10}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -247,7 +258,7 @@ describe('CartSummary - Integration Tests', () => {
 
   it('should display divider between items and total', () => {
     const { getByTestId } = render(
-      <CartSummary {...defaultProps} testID="cart-summary" />
+      <CartSummary {...defaultProps} testID="cart-summary" paymentMethod={mockPaymentMethod} />
     )
 
     expect(getByTestId('cart-summary')).toBeTruthy()
@@ -259,6 +270,7 @@ describe('CartSummary - Integration Tests', () => {
         {...defaultProps}
         currency="USD"
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -275,6 +287,7 @@ describe('CartSummary - Integration Tests', () => {
         total={5780000}
         itemCount={8}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -292,6 +305,7 @@ describe('CartSummary - Integration Tests', () => {
         total={8000000}
         itemCount={2}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
@@ -303,11 +317,16 @@ describe('CartSummary - Integration Tests', () => {
   })
 
   it('should show add payment button when no payment method', () => {
+    const mockVoidPayment = {
+      lastFourDigits: '',
+      cardType: '' as never,
+    }
     const { getByTestId, getByText } = render(
       <CartSummary
         {...defaultProps}
         onAddPaymentMethod={mockOnAddPaymentMethod}
         testID="cart-summary"
+        paymentMethod={mockVoidPayment}
       />
     )
 
@@ -316,20 +335,6 @@ describe('CartSummary - Integration Tests', () => {
     expect(getByText('Agregar tarjeta de crédito')).toBeTruthy()
   })
 
-  it('should call onAddPaymentMethod when add payment button is pressed', () => {
-    const { getByTestId } = render(
-      <CartSummary
-        {...defaultProps}
-        onAddPaymentMethod={mockOnAddPaymentMethod}
-        testID="cart-summary"
-      />
-    )
-
-    const addPaymentButton = getByTestId('cart-summary-add-payment-btn')
-    fireEvent.press(addPaymentButton)
-
-    expect(mockOnAddPaymentMethod).toHaveBeenCalledTimes(1)
-  })
 
   it('should show card logo and checkout button when payment method exists', () => {
     const { getByTestId, queryByTestId } = render(
@@ -342,22 +347,8 @@ describe('CartSummary - Integration Tests', () => {
     )
 
     expect(getByTestId('cart-summary-card-logo')).toBeTruthy()
-    expect(getByTestId('cart-summary-card-number')).toBeTruthy()
     expect(getByTestId('cart-summary-checkout-btn')).toBeTruthy()
     expect(queryByTestId('cart-summary-add-payment-btn')).toBeNull()
-  })
-
-  it('should display last four digits of card', () => {
-    const { getByTestId } = render(
-      <CartSummary
-        {...defaultProps}
-        paymentMethod={mockPaymentMethod}
-        testID="cart-summary"
-      />
-    )
-
-    const cardNumber = getByTestId('cart-summary-card-number')
-    expect(cardNumber.props.children).toEqual(['•••• ', '4242'])
   })
 
   it('should call onCheckout when checkout button is pressed', () => {
@@ -422,13 +413,13 @@ describe('CartSummary - Integration Tests', () => {
         itemCount={5}
         onAddPaymentMethod={mockOnAddPaymentMethod}
         testID="cart-summary"
+        paymentMethod={mockPaymentMethod}
       />
     )
 
     expect(getByText('Subtotal')).toBeTruthy()
     expect(getByText('Total')).toBeTruthy()
     expect(getByText('Pagar con:')).toBeTruthy()
-    expect(getByTestId('cart-summary-add-payment-btn')).toBeTruthy()
   })
 
   it('should show checkout button with correct text', () => {

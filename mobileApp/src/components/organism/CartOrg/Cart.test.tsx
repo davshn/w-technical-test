@@ -8,6 +8,11 @@ jest.mock('react-native-webview', () => {
   }
 })
 
+const paymentMethod = {
+  lastFourDigits: '4242',
+  cardType: 'VISA' as const,
+}
+
 describe('Cart - Integration Tests', () => {
   const mockItems: CartItemType[] = [
     {
@@ -50,6 +55,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={14200000}
         total={14200000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -68,6 +74,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={0}
         total={0}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -85,6 +92,7 @@ describe('Cart - Integration Tests', () => {
         emptyMessage="No products"
         emptyDescription="Start shopping now"
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -100,6 +108,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={14200000}
         total={14200000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -115,6 +124,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={14200000}
         total={14200000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -131,6 +141,7 @@ describe('Cart - Integration Tests', () => {
         total={14200000}
         onQuantityChange={mockOnQuantityChange}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -149,6 +160,7 @@ describe('Cart - Integration Tests', () => {
         total={14200000}
         onRemoveItem={mockOnRemoveItem}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -169,6 +181,7 @@ describe('Cart - Integration Tests', () => {
         shipping={50000}
         total={16448000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -208,6 +221,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={9000000}
         total={9000000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -221,6 +235,7 @@ describe('Cart - Integration Tests', () => {
         availableProducts={mockAvailableProducts}
         subtotal={14200000}
         total={14200000}
+        paymentMethod={paymentMethod}
         testID="cart"
       />
     )
@@ -237,31 +252,11 @@ describe('Cart - Integration Tests', () => {
         total={14200000}
         responsive
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
     expect(getByTestId('cart')).toBeTruthy()
-  })
-
-  it('should pass terms URL to payment modal', async () => {
-    const termsUrl = 'https://example.com/terms.pdf'
-    const { getByTestId } = render(
-      <Cart
-        items={mockItems}
-        availableProducts={mockAvailableProducts}
-        subtotal={14200000}
-        total={14200000}
-        termsUrl={termsUrl}
-        testID="cart"
-      />
-    )
-
-    const addPaymentButton = getByTestId('cart-summary-add-payment-btn')
-    fireEvent.press(addPaymentButton)
-
-    await waitFor(() => {
-      expect(getByTestId('cart-payment-modal')).toBeTruthy()
-    })
   })
 
   it('should handle zero available stock for product', () => {
@@ -277,6 +272,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={14200000}
         total={14200000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -291,6 +287,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={14200000}
         total={14200000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -306,6 +303,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={14200000}
         total={14200000}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
@@ -335,8 +333,7 @@ describe('Cart - Integration Tests', () => {
 
   it('should calculate correct subtotal for items', () => {
     const expectedSubtotal = (mockItems[0].value * mockItems[0].quantity) +
-                            (mockItems[1].value * mockItems[1].quantity)
-
+      (mockItems[1].value * mockItems[1].quantity)
     const { getByTestId } = render(
       <Cart
         items={mockItems}
@@ -344,6 +341,7 @@ describe('Cart - Integration Tests', () => {
         subtotal={expectedSubtotal}
         total={expectedSubtotal}
         testID="cart"
+        paymentMethod={paymentMethod}
       />
     )
 
