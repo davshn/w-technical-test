@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const ENVIRONMENT_URL = 'http://18.116.39.97.sslip.io:3000'
+const ENVIRONMENT_URL = 'http://18.116.39.97:3000'
 
 export const fetchProducts = async () => {
   try {

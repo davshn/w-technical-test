@@ -71,8 +71,10 @@ export class TransactionsService {
           HttpStatus.NOT_FOUND,
         );
       }
+      const productValue = product.get({ plain: true }).value;
+      const subtotal =
+        productValue * item.quantity + productValue * item.quantity * 0.19;
 
-      const subtotal = product.get({ plain: true }).value * item.quantity;
       total += subtotal;
 
       productDetails.push({
